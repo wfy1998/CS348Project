@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Diet Record</title>
+</head>
+<body>
+    <h1 style="text-align:center">Name: Cookies</h1>
+    <br/><br/><br/>
+    {%if data[0] == NULL%}
+        <br/><br/>
+        <h4 style="text-align:center">
+            No meal has been record yet!
+        </h4>
+    {%else%}
+        <table align="center" border="1" cellpadding="5" cellspacing="5">
+        {% for row in data %}
+            <tr style="text-align:center">
+            {% for d in row %}
+                <td>{{ d }}</td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    {%endif%}
+</table>
+    <center><a class="button" href="{{ url_for('addmeal') }}">Add meal</a></center>
+</body>
+</html>
