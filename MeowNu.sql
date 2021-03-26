@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `meal` (
 CREATE TABLE IF NOT EXISTS `dietRecord` (
 	`pet_id` int(11) NOT NULL,
     `meal_id` int(11) NOT NULL,
-    `date` timestamp DEFAULT CURRENT_TIMESTAMP,
+    `date` varchar(50) NOT NULL,
     FOREIGN KEY (pet_id) REFERENCES pet(pet_id) ON DELETE CASCADE,
     FOREIGN KEY (meal_id) REFERENCES meal(meal_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -161,3 +161,11 @@ INSERT INTO `food` (`name`, `calories`, `moisture`, `protein`, `lipid`, `Ca`, `P
 ('Mussels', 74, 81.3, 10.7, 1.8, 66, 147, 3.3, 1.13, 0.09, 0.157, 105, 0, 0, 243, 0.97, 44),
 ('Saury', 297 , 57.7, 17.6, 23.6, 26, 170, 1.3, 0.8, 0.12, 0.02, 21, 0.01, 0, 37 ,1, 520),
 ('salmon', 208, 64.89, 20.42, 13.42, 9, 240, 0.34, 0.36, 0.045, 0.011, 0, 0.207, 78.5, 193, 3.55, 441);
+
+--
+-- Dumping few instances(user, pet, meal) for convenience.
+-- 
+INSERT INTO user(email, password, username, age, gender, city) VALUES 
+("123@gmail.com", "123456", "Mary", 20, "female", "West Lafayette");
+INSERT INTO pet(user_id, name, species, age, gender, weight, status ) VALUES 
+(1, "Cookie", "cat", "2", "female", 3, "None");

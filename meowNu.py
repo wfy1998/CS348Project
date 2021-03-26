@@ -5,9 +5,9 @@ from flask import Flask, redirect, url_for, render_template, request, session, f
 app = Flask(__name__)
 
 @app.route('/diet')
-def show_diet():
+def diet():
     cnx, c = connection()
-    query = "select * from meal;"
+    query = "select date, type from dietRecord JOIN meal on dietRecord.meal_id = meal.meal_id;"
     c.execute(query)
 
     data = c.fetchall()
@@ -21,13 +21,28 @@ def addmeal():
     if request.method == "GET":
         return render_template("addmeal.html")
     else:
-        name = request.form.get("Food Name")
-        amount = request.form.get("amount")
-        query1 = "SELECT food_id from food where name ==" + name;
-        c.execute(query1)
-        id = c.fetchall()
-        query2 = "INSERT INTO mealrel (meal_id, food_id, amount) VALUES (1,"+ id[0] +","+ name+");"
+        mealtype = request.form["type"]
+        month = request.form["month"]
+        date = request.form["date"]
+        year = request.form["year"]
+        query = "INSERT INTO meal(type) VALUES ('" +str(mealtype) + "');"
+        c.execute(query)
 
+        c.execute("SELECT MAX(meal_id) FROM meal;")
+        meal_id = c.fetchone()[0]
+        petid = 1
+        if len(month) == 1: month="0"+month
+        if len(date) == 1: date = "0"+date
+        datetime = month+"/"+date+"/"+year
+
+        query2 = "INSERT INTO dietRecord(pet_id, meal_id, date) VALUES " \
+                 "("+str(petid)+","+str(meal_id)+",'"+datetime+"');"
+        c.execute(query2)
+
+        c.close()
+        cnx.commit()
+        cnx.close()
+        return redirect(url_for("diet"))
 
 if __name__ == '__main__':
    app.run()

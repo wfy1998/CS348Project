@@ -14,11 +14,14 @@
         </h4>
     {%else%}
         <table align="center" border="1" cellpadding="5" cellspacing="5">
+            <tr style="text-align:center">
+                <td>Date</td>
+                <td>Meal Type</td>
+            </tr>
         {% for row in data %}
             <tr style="text-align:center">
-            {% for d in row %}
-                <td>{{ d }}</td>
-            {% endfor %}
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
             </tr>
         {% endfor %}
     {%endif%}
