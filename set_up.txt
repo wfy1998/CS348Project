@@ -1,6 +1,7 @@
 Set up
+*do not push dbconnect.py
 
-Connect with your local mysql server, could download from 
+local mysql server, could download from 
 https://dev.mysql.com/doc/mysql-osx-excerpt/8.0/en/osx-installation-pkg.html
 
 use terminal to connect with local server:
@@ -8,6 +9,4 @@ mysql -u root -p
 
 create a database to use, eg: create database db1; use db1;
 follow dbconnect.py to get connection
-pip3 install flask-mysqldb
-pip3 install Flask-WTF
-pip3 install passlib
+
