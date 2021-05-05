@@ -15,8 +15,9 @@ h4 {
             {% if session['name'] %}
             <div class = "form-group">
                 <label>welcome</label>
-                <center><a class="button" href="{{ url_for('profile') }}">profile</a></center>
-                <center><a class="button" href="{{ url_for('setProfile') }}">setProfile</a></center>
+                <center><a class="button" href="{{ url_for('setProfile') }}">set my profile</a></center>
+                <center><a class="button" href="{{ url_for('profile') }}">view my profile</a></center>
+                <center><a class="button" href="{{ url_for('user') }}">other users' info</a></center>
                 <center><a class="button" href="{{ url_for('logout') }}">logout</a></center>
             </div>
             {% else %}
