@@ -20,7 +20,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE IF NOT EXISTS `user` (
 	`user_id` int(11) NOT NULL AUTO_INCREMENT,
 	`email` varchar(50) NOT NULL,
-    `password` varchar(50) NOT NULL,
+    `password` varchar(200) NOT NULL,
     `username` varchar(50) NOT NULL,
     `age` int(11),
     `gender` varchar(50),

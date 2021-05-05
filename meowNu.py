@@ -21,10 +21,8 @@ def register():
     else:
         name = request.form['name']
         email = request.form['email']
-        print(email)
-        print("\n\n\n")
-        # if email in session['email']:
-        #     return render_template("error.html")
+        if str(email) in session['email']:
+            return render_template("error.html")
         psw = request.form['psw'].encode("utf-8")
         hash_password = bcrypt.hashpw(psw, bcrypt.gensalt())
         print("(" + str(name) + "," + str(email) + "," + str(psw) + ");")
@@ -58,8 +56,10 @@ def login():
         print(user)
         c.close()
         cnx.close()
-        if user != None:
-            if bcrypt.hashpw(password, user['password'].encode("latin-1")) == user['password'].encode("latin-1"):
+        print(user['password'].encode("utf-8"))
+        if user == None:
+            print(user['password'].encode("utf-8"))
+            if bcrypt.hashpw(password, user['password'].encode("utf-8")) == user['password'].encode("utf-8"):
                 session['name'] = name
                 session['email'] = email
                 return redirect(url_for("home"))
