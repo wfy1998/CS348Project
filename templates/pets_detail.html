@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pet Detail</title>
+    <h1 style="text-align:center">Pet Detail</h1>
+</head>
+<body>
+<script>
+    function getID(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    var pet_id = getID('pet_id');
+</script>
+
+<form method="get">
+
+    <table align="center" border="1">
+
+        <tr>
+            <th>Pet Name</th>
+            <th>{{ data[1] }}</th>
+            <th>Species</th>
+            <th>{{ data[2] }}</th>
+        </tr>
+
+        <tr>
+            <th>Age</th>
+            <th>{{ data[3] }}</th>
+            <th>Weight</th>
+            <th>{{ data[4] }}</th>
+        </tr>
+
+        <tr>
+            <th>Status</th>
+            <th>{{ data[5] }}</th>
+        </tr>
+        <tr></tr>
+
+    </table>
+</form>
+
+<form method="post">
+    <center><a class="button" href="pets_daily_report.html?pet_id={{ data[0] }}">Get Daily Report</a></center>
+</form>
+
+</body>
+</html>
