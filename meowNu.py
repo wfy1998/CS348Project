@@ -21,12 +21,11 @@ def register():
     else:
         name = request.form['name']
         email = request.form['email']
-        if str(email) in session['email']:
-            return render_template("error.html")
+        if 'email' in session:
+            if str(email) in session['email']:
+                return render_template("error.html")
         psw = request.form['psw'].encode("utf-8")
         hash_password = bcrypt.hashpw(psw, bcrypt.gensalt())
-        print("(" + str(name) + "," + str(email) + "," + str(psw) + ");")
-        print("\n\n\n\n")
         c.execute("INSERT INTO user(username, email, password) VALUES (%s,%s,%s)", (name, email, hash_password,))
         c.close()
         cnx.commit()
