@@ -48,7 +48,7 @@
 </form>
 
 <form method="post">
-    <center><a class="button" href="pets_daily_report.html?pet_id={{ data[0] }}">Get Daily Report</a></center>
+    <center><a class="button" href={{ url_for('pets_daily_report', pet_id=data[0]) }}>Get Daily Report</a></center>
 </form>
 
 </body>

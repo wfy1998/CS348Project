@@ -191,10 +191,12 @@ def pets_daily_report():
     cnx, c = connection()
     pet_id = request.args.get('pet_id')
 
+    print(str(pet_id))
+
     c.execute("SELECT name FROM pet WHERE pet_id = %s" % (pet_id,))
     name = c.fetchone()
 
-    print(name + "\n\n")
+    print(str(name[0]) + "\n\n")
 
     c.execute("""
                 SELECT date, SUM(amount * calories * 0.01)
@@ -208,7 +210,7 @@ def pets_daily_report():
     cur = datetime.date.today()
     year_now, week_now, day_now = cur.isocalendar()
 
-    data = {name}
+    data = []
     for (date, cal) in c:
         d = datetime.datetime.strptime(date, '%Y-%m-%d')
         week = d.isocalendar()[1]
@@ -219,7 +221,7 @@ def pets_daily_report():
 
     c.close()
     cnx.close()
-    return render_template("pets_daily_report.html", data=data)
+    return render_template("pets_daily_report.html", name=name, data=data)
 
 
 @app.route('/diet', methods=["GET", "POST"])
