@@ -11,7 +11,7 @@
             {% for row in data %}
                 <tr>
                     <th>Pet Name</th>
-                    <th><a href="pets_detail.html?pet_id={{ row[0] }}"> {{ row[1] }}</a></th>
+                    <th><a href="{{ url_for('pets_detail', pet_id= row[0]) }}"> {{ row[1] }}</a></th>
                 </tr>
 
             {% endfor %}
