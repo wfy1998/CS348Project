@@ -1,0 +1,23 @@
+<style>
+    h1 {
+        border-bottom: 3px solid black;
+        background-color: white;
+      }
+    h4 {
+        color: rgb(182, 93, 123);
+    }
+    </style>
+    <div class= 'row'>
+        <div class = "col-md-6 col-md-offset-3">
+            <form action = "/register" method = 'POST'>
+                <h1 style="text-align:center">404: ERROR PAGE</h1>
+    
+                <div class = "form-group">
+                    <h4 style="text-align:center">Either the password is worng or the user not found</h4>
+                    <center><a class="button" href="{{ url_for('home') }}">home</a></center>
+                    <center><a class="button" href="{{ url_for('register') }}">register</a></center>
+                    <center><a class="button" href="{{ url_for('login') }}">login</a></center>
+                </div>
+            </form>
+        </div>
+    </div>

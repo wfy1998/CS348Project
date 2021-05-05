@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head >
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<style>
+button { 
+    height: 30px; 
+    width: 100px; 
+    border: none;
+    color: white;
+    background-color: #4CAF50; 
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    } 
+h1 {
+  border-bottom: 3px solid black;
+  background-color: white;
+}
+input {
+  border-bottom: 3px solid lightgray;
+  background-color: lightgrey;
+}
+p{
+    color: red;
+    font-size: 20px;
+}
+</style>
+<body style="text-align:center" >
+   <h1 style="text-align:center" >Profile</h1>
+
+<div class= 'row'  border: 0.5rem outset pink; >
+    <div class = "col-md-6 col-md-offset-3">
+        {% if session['name'] %}
+        <form action = "/login" method = 'POST'>
+            <table align="center" border="1" cellpadding="5" cellspacing="5">
+                <tr style="text-align:center">
+                    <td>username</td>
+                    <td>email</td>
+                    <td>gender</td>
+                    <td>age</td>
+                    <td>city</td>
+                    
+                </tr>
+            {% for row in data %}
+            <tr style="text-align:center">
+                {%for i in row%}
+                {%if i == NULL%}
+                <td>None</td>
+                {%else%}
+                <td>{{ i }}</td>
+                {%endif%}
+                {%endfor%}
+                
+                <!-- <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td> -->
+            </tr>
+            {% endfor %}
+            <div class = "form-group">
+                <label>name:</label>
+                <input type = 'text' placeholder="Update your username"  class='form-control' name='name'>
+            </div>
+            <div class = "form-group">
+                <label>gender:</label>
+                <input type = 'password' placeholder="Update your gender" class='form-control' name='gender'>
+            </div>
+            <div class = "form-group">
+                <label>age:</label>
+                <input type = 'text' placeholder="Update your age" class='form-control' name='age'>
+            </div>
+            
+            <div class = "form-group">
+                <label>city:</label>
+                <input type = 'text' placeholder="Update your city" class='form-control' name='city'>
+            </div>
+            <br/>
+            <div class = "form-group">
+                <button type = 'submit' class='btn bttn-primary'>submit</button>
+            </div>
+        </form>
+        {%else%}
+        <p>Login first</p>
+        {%endif%}
+    </div>
+</div>
+</body>

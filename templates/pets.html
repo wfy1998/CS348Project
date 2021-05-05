@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pets</title>
+    <h1 style="text-align:center">Pets</h1>
+    </br></br>
+    <form method="get">
+
+        <table align="center" border="1">
+            {% for row in data %}
+                <tr>
+                    <th>Pet Name</th>
+                    <th><a href="pets_detail.html?pet_id={{ row[0] }}"> {{ row[1] }}</a></th>
+                </tr>
+
+            {% endfor %}
+        </table>
+    </form>
+
+    <form method="POST">
+        <h4 style="text-align:center">Add A Pet:</h4>
+        <center>
+            <label for="pet_name">Name:</label>
+            <input type="text" id="pet_name" name="pet_name">
+        </center>
+        </br>
+        <center>
+            <label for="species">Species:</label>
+            <input type="text" id="species" name="species">
+        </center>
+        </br>
+        <center>
+            <label for="pet_age">Age:</label>
+            <input type="text" id="pet_age" name="pet_age">
+        </center>
+        </br>
+        <center>
+            <label for="weight">Weight:</label>
+            <input type="text" id="weight" name="weight">
+        </center>
+        </br>
+        <center>
+            <label for="status">Status:</label>
+            <input type="text" id="status" name="status">
+        </center>
+        </br>
+        <center><input type="submit" name="add_pet" value="Add Pet"></center>
+    </form>
+</head>
+<body>
+
+</body>
+</html>

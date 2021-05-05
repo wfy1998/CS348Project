@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head >
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<style>
+button { 
+    height: 30px; 
+    width: 100px; 
+    border: none;
+    color: white;
+    background-color: #4CAF50; 
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 20px;
+    } 
+h1 {
+  border-bottom: 3px solid black;
+  background-color: white;
+}
+input {
+  border-bottom: 3px solid lightgray;
+  background-color: lightgrey;
+}
+</style>
+<body style="text-align:center" >
+   <h1 style="text-align:center" style="background-color:DodgerBlue;">Login</h1>
+
+<div class= 'row'  border: 0.5rem outset pink; >
+    <div class = "col-md-6 col-md-offset-3">
+        <form action = "/login" method = 'POST'>
+            <div class = "form-group">
+                <label>Email:</label>
+                <input type = 'text' placeholder="Enter Email" class='form-control' name='email' required>
+            </div>
+            <div class = "form-group">
+                <label>Password:</label>
+                <input type = 'password' placeholder="Enter password"  class='form-control' name='password' required>
+            </div>
+            <br/>
+            <div class = "form-group">
+                <button type = 'submit' class='btn bttn-primary'>Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
