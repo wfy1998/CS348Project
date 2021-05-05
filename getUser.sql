@@ -1,13 +1,14 @@
-DROP PROCEDURE IF EXISTS getUser;
+DROP PROCEDURE IF EXISTS getUserInfo1;
 DELIMITER $$
 
-CREATE PROCEDURE getUser(
-	IN userId INT
+CREATE PROCEDURE getUserInfo1(
+	IN emailAdd VARCHAR(50)
 )
 BEGIN
-	select name, gender, age, city, email
+	select username, email, gender, age, city
 	from user 
-	where user_id=userId;
+	where email = emailAdd;
+
 END$$
 
 DELIMITER ;
