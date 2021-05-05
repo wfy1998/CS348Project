@@ -49,8 +49,7 @@ def login():
         c.execute(query)
 
         user = c.fetchone()
-        print(user)
-        print("\n\n\n")
+        
         # c.close()
         # cnx.close()
         if user is not None:
@@ -96,31 +95,43 @@ def setProfile():
 
         query = "update user set username = %s, gender = %s, age = %s, city = %s where email = %s"
         c.execute(query,(name, gender, age, city, session['email']))
-
+        
         c.close()
         cnx.commit()
         cnx.close()
 
         return redirect(url_for("profile"))
 
+@app.route('/user')
+def user():
+    cnx, c = connection()
+    query = "select username, email, gender, age, city from user where email = \"" + session['email'] + "\";"
+    c.execute(query)
+    data = c.fetchall()
+    c.close()
+    cnx.commit()
+    cnx.close()
+    return render_template("user.html", data=data)
 
-@app.route('/', methods=["GET", "POST"])
+
+@app.route('/pets', methods=["GET", "POST"])
 def pets():
     cnx, c = connection()
     email = session['email']
-    # email = "123@gmail.com"
-    c.execute("SELECT user_id FROM user WHERE email = '%s'" % (email,))
-    user = c.fetchone()
-
-    print("User: " + str(user[0]))
-
     if request.method == "GET":
 
-        c.execute("SELECT pet_id, name FROM pet WHERE user_id = %s" % (user[0],))
+        c.execute("SELECT user_id FROM user WHERE email = " + email)
+        user = 0
+        for uid in c:
+            user = uid
+
+        query = "SELECT pet_id, name"
+        query += "FROM pet"
+        query += "WHERE user_id = " + str(user)
+
+        c.execute(query)
 
         data = c.fetchall()
-
-        print("SELECT pet_id, name FROM pet WHERE user_id = " + str(user[0]) + "\n" + str(data) + "\n\n")
 
         c.close()
         cnx.close()
@@ -133,11 +144,8 @@ def pets():
         weight = request.form["weight"]
         status = request.form["status"]
 
-        record = [user, name, species, age, weight, status]
-        c.execute("INSERT INTO pet(user_id, name, species, age, weight, status) VALUES(%s, '%s', '%s', %s, %s, '%s')",
-                  record)
-
-        print(record)
+        record = [name, species, age, weight, status]
+        c.execute("INSERT INTO pet(name, species, age, weight, status) VALUES(%s, %s, %s, %s, %s)", record)
 
         c.close()
         cnx.commit()
@@ -149,14 +157,13 @@ def pets():
 def pets_detail():
     cnx, c = connection()
 
-    pet_id = request.args.get('pet_id')
+    pet_id = request.GET.get('pet_id')
 
-    c.execute("SELECT pet_id, name, species, age, weight, status FROM pet WHERE pet_id = %s" % (pet_id,))
+    query = "SELECT pet_id, name, species, age, weight, status"
+    query += "FROM pet WHERE pet_id = " + str(pet_id) + ";"
+    c.execute(query)
 
-    data = c.fetchone()
-
-    print("SELECT pet_id, name, species, age, weight, status FROM pet WHERE pet_id = " + str(pet_id) + "\n" + str(
-        data) + "\n\n")
+    data = c.fetchall()
 
     c.close()
     cnx.close()
@@ -166,21 +173,20 @@ def pets_detail():
 @app.route('/pets_daily_report')
 def pets_daily_report():
     cnx, c = connection()
-    pet_id = request.args.get('pet_id')
+    pet_id = request.GET.get('pet_id')
 
-    c.execute("SELECT name FROM pet WHERE pet_id = %s" % (pet_id,))
-    name = c.fetchone()
+    q = "SELECT name FROM pet WHERE pet_id = " + pet_id;
+    c.execute(q)
+    name = c.fetchall()
 
-    print(name + "\n\n")
+    query = "SELECT date, SUM(amount * calories)"
+    query += "FROM dietrecord"
+    query += "JOIN mealrel ON dietrecord.meal_id = mealrel.meal_id"
+    query += "JOIN food ON mealrel.food_id = food.food_id"
+    query += "WHERE dietrecord.pet_id = 1"
+    query += "GROUP BY date"
 
-    c.execute("""
-                SELECT date, SUM(amount * calories * 0.01)
-                FROM dietrecord
-                JOIN mealrel ON dietrecord.meal_id = mealrel.meal_id
-                JOIN food ON mealrel.food_id = food.food_id
-                WHERE dietrecord.pet_id = %s
-                GROUP BY date
-                """ % (pet_id,))
+    c.execute(query)
 
     cur = datetime.date.today()
     year_now, week_now, day_now = cur.isocalendar()
@@ -192,57 +198,42 @@ def pets_daily_report():
         if week == week_now:
             data += (date, cal)
 
-    print(str(data) + "\n\n")
-
     c.close()
     cnx.close()
     return render_template("pets_daily_report.html", data=data)
 
-
-@app.route('/diet', methods=["GET", "POST"])
+@app.route('/diet',methods=["GET","POST"])
 def diet():
     cnx, c = connection()
     query = "select meal.meal_id, date, type from dietRecord JOIN meal on dietRecord.meal_id = meal.meal_id;"
-    try:
-        c.execute(query)
-        data = c.fetchall()
-    except:
-        print("Something went wrong.")
+    c.execute(query)
+    data = c.fetchall()
 
-    info = []
+    info =[]
     for item in data:
         meal_id = item[0]
         query = "select SUM(amount*calories/100) from (select meal_id, calories, amount " \
                 "from mealrel join food on mealrel.food_id=food.food_id) as a " \
                 "where meal_id = %s;"
-        try:
-            c.execute(query,(meal_id,))
-            total = c.fetchone()[0]
-            new =item + (total,)
-            info.append(new)
-        except:
-            print("Something went wrong.")
+        c.execute(query,(meal_id,))
+        total = c.fetchone()[0]
+        new =item + (total,)
+        info.append(new)
 
-    #print(info)
 
     c.close()
     cnx.close()
 
     return render_template("diet.html", info=info)
 
-
-@app.route('/addmeal', methods=["GET", "POST"])
+@app.route('/addmeal', methods=["GET","POST"])
 def addmeal():
     cnx, c = connection()
     if request.method == "GET":
-        try:
-            c.execute("SELECT name from food;")
-            foodlist = [foodlist[0] for foodlist in c.fetchall()]
-            foodlist.append("null")
-            return render_template("addmeal.html", foodlist = foodlist)
-        except:
-            print("Something went wrong.")
-
+        c.execute("SELECT name from food;")
+        foodlist = [foodlist[0] for foodlist in c.fetchall()]
+        foodlist.append("null")
+        return render_template("addmeal.html", foodlist = foodlist)
     else:
         mealtype = request.form["type"]
         month = request.form["month"]
@@ -287,44 +278,42 @@ def addmeal():
             c.execute("INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)",
                       (meal_id, food3_id, amount3))
 
-        pet_id = 2
+        petid = 1
         if len(month) == 1: month="0"+month
         if len(date) == 1: date = "0"+date
         datetime = month+"/"+date+"/"+year
 
         query2 = "INSERT INTO dietRecord(pet_id, meal_id, date) VALUES (%s,%s,%s);"
-        c.execute(query2, (pet_id, meal_id, datetime))
+        c.execute(query2, (petid, meal_id, datetime))
 
         c.close()
         cnx.commit()
         cnx.close()
         return redirect(url_for("diet"))
 
-
-@app.route('/viewmeal', methods=["GET", "POST"])
+@app.route('/viewmeal', methods=["GET","POST"])
 def viewmeal():
     cnx, c = connection()
     meal_id = request.form.get("meal_id")
 
-    data = []
-    c.execute("select date from dietRecord where meal_id=%s", (meal_id,))
+    data=[]
+    c.execute("select date from dietRecord where meal_id=%s",(meal_id,))
     date = c.fetchone()[0]
     data.append(date)
 
-    c.execute("select type from meal where meal_id=%s", (meal_id,))
+    c.execute("select type from meal where meal_id=%s",(meal_id,))
     type = c.fetchone()[0]
     data.append(type)
-    args =[]
-    args.append(meal_id)
-    c.callproc("getView", args)
-    food=[]
-    for result in c.stored_results():
-        food = result.fetchall()
+
+    c.execute("select name, amount, calories, moisture, protein, lipid "
+              "from mealrel join food on mealrel.food_id = food.food_id "
+              "where meal_id=%s;", (meal_id,))
+    food = c.fetchall()
 
     info = []
     total = 0
     for item in food:
-        temp = item[1] * item[2] / 100
+        temp = item[1]* item[2] / 100
         new = item + (temp,)
         info.append(new)
         total += temp
