@@ -36,21 +36,51 @@ p{
     <div class = "col-md-6 col-md-offset-3">
         {% if session['name'] %}
         <form action = "/login" method = 'POST'>
+            <table align="center" border="1" cellpadding="5" cellspacing="5">
+                <tr style="text-align:center">
+                    <td>username</td>
+                    <td>email</td>
+                    <td>gender</td>
+                    <td>age</td>
+                    <td>city</td>
+                    
+                </tr>
+            {% for row in data %}
+            <tr style="text-align:center">
+                {%for i in row%}
+                {%if i == NULL%}
+                <td>None</td>
+                {%else%}
+                <td>{{ i }}</td>
+                {%endif%}
+                {%endfor%}
+                
+                <!-- <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td> -->
+            </tr>
+            {% endfor %}
             <div class = "form-group">
-                <label>age:</label>
-                <input type = 'text' class='form-control' name='email'>
+                <label>name:</label>
+                <input type = 'text' placeholder="Update your username"  class='form-control' name='name'>
             </div>
             <div class = "form-group">
                 <label>gender:</label>
-                <input type = 'password' class='form-control' name='password'>
+                <input type = 'password' placeholder="Update your gender" class='form-control' name='gender'>
             </div>
             <div class = "form-group">
+                <label>age:</label>
+                <input type = 'text' placeholder="Update your age" class='form-control' name='age'>
+            </div>
+            
+            <div class = "form-group">
                 <label>city:</label>
-                <input type = 'password' class='form-control' name='password'>
+                <input type = 'text' placeholder="Update your city" class='form-control' name='city'>
             </div>
             <br/>
             <div class = "form-group">
-                <button type = 'submit' class='btn bttn-primary'>Login</button>
+                <button type = 'submit' class='btn bttn-primary'>submit</button>
             </div>
         </form>
         {%else%}
