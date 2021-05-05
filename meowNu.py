@@ -217,18 +217,14 @@ def diet():
     info =[]
     for item in data:
         meal_id = item[0]
-        c.execute("select food_id, amount from mealrel where meal_id=%s;",(meal_id,))
-        food = c.fetchall()
-        total =0
-        for i in food:
-            c.execute("select calories from food where food_id=%s;", (i[0],))
-            temp = c.fetchone()[0]
-            total = total + temp * i[1]/100
-
+        query = "select SUM(amount*calories/100) from (select meal_id, calories, amount " \
+                "from mealrel join food on mealrel.food_id=food.food_id) as a " \
+                "where meal_id = %s;"
+        c.execute(query,(meal_id,))
+        total = c.fetchone()[0]
         new =item + (total,)
         info.append(new)
 
-    #print(info)
 
     c.close()
     cnx.close()
