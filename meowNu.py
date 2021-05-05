@@ -76,9 +76,14 @@ def logout():
 @app.route('/profile')
 def profile():
     cnx, c = connection()
-    query = "select username, email, gender, age, city from user where email = \"" + session['email'] + "\";"
-    c.execute(query)
-    data = c.fetchall()
+    user_id = request.args.get('user_id')
+    args = []
+    args.append(str(session['email']))
+    c.callproc("getUserInfo1", args)
+    food = []
+    for result in c.stored_results():
+        data = result.fetchall()
+
     c.close()
     cnx.commit()
     cnx.close()
@@ -129,6 +134,7 @@ def pets():
     cnx, c = connection()
     c = cnx.cursor(buffered=True)
     email = session['email']
+    
     # email = "123@gmail.com"
     c.execute("SELECT user_id FROM user WHERE email = '%s'" % (email,))
     user = c.fetchone()
@@ -259,11 +265,16 @@ def diet():
         new = item + (total,)
         info.append(new)
 
-    # print(info)
+    args = []
+    args.append(pet_id)
+    c.callproc("statis", args)
+    statis = []
+    for result in c.stored_results():
+        statis = result.fetchall()
 
     c.close()
     cnx.close()
-    return render_template("diet.html", info=info, pet_id=pet_id, pet_name=pet_name)
+    return render_template("diet.html", info=info, pet_id=pet_id, pet_name=pet_name, statis=statis)
 
 
 @app.route('/addmeal', methods=["GET", "POST"])
