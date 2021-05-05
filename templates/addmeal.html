@@ -14,9 +14,42 @@
             <input type = "text" id="month" name = "month">
             <label for="date">Date:</label>
             <input type = "text" id="date" name = "date">
-            <label for="year">Enter Date:</label>
+            <label for="year">Year:</label>
             <input type = "text" id="year" name = "year">
         </center></br>
+        <h4 style="text-align:center">Enter Food: (At most three types of food for a meal.)</h4>
+        <center>
+            <label>Food1:</label>
+            <select name= food1 method="GET" action="/">
+                {% for name in foodlist %}
+                <option value= "{{name}}" SELECTED>{{name}}</option>
+                {% endfor %}
+            </select>
+            <label for="amount1">Weight(g):</label>
+            <input type = "text" id="amount1" name = "amount1">
+        </center>
+
+        <center>
+            <label>Food2:</label>
+            <select name= food2 method="GET" action="/">
+                {% for name in foodlist %}
+                <option value= "{{name}}" SELECTED>{{name}}</option>
+                {% endfor %}
+            </select>
+            <label for="amount2">Weight(g):</label>
+            <input type = "text" id="amount2" name = "amount2">
+        </center>
+
+        <center>
+            <label>Food3:</label>
+            <select name= food3 method="GET" action="/">
+                {% for name in foodlist %}
+                <option value= "{{name}}" SELECTED>{{name}}</option>
+            {% endfor %}
+            </select>
+            <label for="amount3">Weight(g):</label>
+            <input type = "text" id="amount3" name = "amount3">
+        </center>
         <center><input type = "submit" name = "Add" value="Add"></center>
     </form>
 </head>
