@@ -34,37 +34,15 @@ p{
 <div class= 'row'  border: 0.5rem outset pink; >
     <div class = "col-md-6 col-md-offset-3">
         {% if session['name'] %}
-        <form action = "/login" method = 'POST'>
-            <table align="center" border="1" cellpadding="5" cellspacing="5">
-                <tr style="text-align:center">
-                    <td>username</td>
-                    <td>email</td>
-                    <td>gender</td>
-                    <td>age</td>
-                    <td>city</td>
-                    
-                </tr>
-            {% for row in data %}
-            <tr style="text-align:center">
-                {%for i in row%}
-                {%if i == NULL%}
-                <td>None</td>
-                {%else%}
-                <td>{{ i }}</td>
-                {%endif%}
-                {%endfor%}
-                
-                <!-- <td>{{ row[1] }}</td>
-                <td>{{ row[2] }}</td>
-                <td>{{ row[3] }}</td>
-                <td>{{ row[4] }}</td> -->
-            </tr>
-            {% endfor %}
-            <!-- <div class = "form-group">
+        <form action = "/setProfile" method = 'POST'>
+            <div class = "form-group">
                 <label>Name:</label>
                 <input type = 'text' placeholder="Update your username"  class='form-control' name='name'>
                 <label>Age:</label>
                 <input type = 'number' min=10 max = 99 value = '22' class='form-control'  name='age'>
+                <br/>
+                <label>City:</label>
+                <input type = 'text' class='form-control' placeholder="Your current location" name='city'>
                 <br/>
                 <br/>
                 <input type="radio" name="gender" value="female"> Female
@@ -74,13 +52,11 @@ p{
                 <input type="radio" name="gender" value="female"> Intersex
                 <br/>
             
-            <br/> -->
-            <!-- <div class = "form-group">
-                <button type = 'submit' class='btn bttn-primary'>submit</button>
-            </div> -->
             <br/>
-            <center><a class="button" href="{{ url_for('home') }}">home</a></center>
-
+            <div class = "form-group">
+                <button type = 'submit' class='btn bttn-primary'>submit</button>
+            </div>
+            <br/>
         </form>
         {%else%}
         <p>Login first</p>
