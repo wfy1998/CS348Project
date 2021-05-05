@@ -12,6 +12,7 @@
                 <tr>
                     <th>Pet Name</th>
                     <th><a href="{{ url_for('pets_detail', pet_id= row[0]) }}"> {{ row[1] }}</a></th>
+                    <th><a href="{{ url_for('diet', pet_id= row[0]) }}"> Diet Record</a></th>
                 </tr>
 
             {% endfor %}

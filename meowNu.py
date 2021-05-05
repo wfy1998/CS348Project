@@ -233,12 +233,14 @@ def diet():
     c.close()
     cnx.close()
 
-    return render_template("diet.html", info=info)
+    return render_template("diet.html", info=info, pet_id=pet_id)
 
 
 @app.route('/addmeal', methods=["GET", "POST"])
 def addmeal():
     cnx, c = connection()
+    pet_id = request.args.get('pet_id')
+
     if request.method == "GET":
         c.execute("SELECT name from food;")
         foodlist = [foodlist[0] for foodlist in c.fetchall()]
@@ -288,13 +290,12 @@ def addmeal():
             c.execute("INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)",
                       (meal_id, food3_id, amount3))
 
-        petid = 1
-        if len(month) == 1: month = "0" + month
-        if len(date) == 1: date = "0" + date
-        datetime = month + "/" + date + "/" + year
+        if len(month) == 1: month="0"+month
+        if len(date) == 1: date = "0"+date
+        datetime = month+"/"+date+"/"+year
 
         query2 = "INSERT INTO dietRecord(pet_id, meal_id, date) VALUES (%s,%s,%s);"
-        c.execute(query2, (petid, meal_id, datetime))
+        c.execute(query2, (pet_id, meal_id, datetime))
 
         c.close()
         cnx.commit()
