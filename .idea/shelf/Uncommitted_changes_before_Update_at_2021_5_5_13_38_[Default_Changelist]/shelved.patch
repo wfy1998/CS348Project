@@ -1,0 +1,210 @@
+Index: dbconnect.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import mysql.connector\r\n\r\n\r\n# connect to your local database\r\ndef connection():\r\n    cnx = mysql.connector.connect(user=\"root\", password=\"qwerty12345\",\r\n                                  host=\"localhost\",\r\n                                  database=\"cs348project\")\r\n    c = cnx.cursor()\r\n    return cnx, c\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- dbconnect.py	(revision 7a2441ea0a30c7d186beeb70b241675c9e59cf5c)
++++ dbconnect.py	(date 1620231925721)
+@@ -3,8 +3,8 @@
+ 
+ # connect to your local database
+ def connection():
+-    cnx = mysql.connector.connect(user="root", password="qwerty12345",
++    cnx = mysql.connector.connect(user="root", password="991110",
+                                   host="localhost",
+-                                  database="cs348project")
++                                  database="348project")
+     c = cnx.cursor()
+     return cnx, c
+Index: meowNu.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from dbconnect import connection\r\nimport mysql.connector\r\nfrom flask import Flask, redirect, url_for, render_template, request, session, flash\r\nimport bcrypt\r\nimport datetime\r\n\r\napp = Flask(__name__)\r\n\r\n\r\n@app.route('/')\r\ndef home():\r\n    cnx, c = connection()\r\n    return render_template(\"home.html\")\r\n\r\n\r\n@app.route('/register', methods=[\"GET\", \"POST\"])\r\ndef register():\r\n    cnx, c = connection()\r\n    if request.method == \"GET\":\r\n        return render_template(\"register.html\")\r\n    else:\r\n        name = request.form['name']\r\n        email = request.form['email']\r\n        if 'email' in session:\r\n            if str(email) in session['email']:\r\n                return render_template(\"error.html\")\r\n        psw = request.form['psw'].encode(\"utf-8\")\r\n        hash_password = bcrypt.hashpw(psw, bcrypt.gensalt())\r\n        c.execute(\"INSERT INTO user(username, email, password) VALUES (%s,%s,%s)\", (name, email, hash_password,))\r\n        c.close()\r\n        cnx.commit()\r\n        cnx.close()\r\n\r\n        session['name'] = name\r\n        session['email'] = email\r\n        return render_template(\"home.html\")\r\n\r\n\r\n@app.route('/login', methods=[\"GET\", \"POST\"])\r\ndef login():\r\n    cnx, c = connection()\r\n    if request.method == \"GET\":\r\n        return render_template(\"login.html\")\r\n    else:\r\n        email = request.form['email']\r\n        password = request.form['password'].encode(\"utf-8\")\r\n\r\n        query = \"select * from user where email = \\\"\" + email + \"\\\";\"\r\n        c.execute(query)\r\n\r\n        user = c.fetchone()\r\n        print(user)\r\n        print(\"\\n\\n\\n\")\r\n        # c.close()\r\n        # cnx.close()\r\n        if user != None:\r\n            if bcrypt.hashpw(password, user[2].encode(\"utf-8\")) == user[2].encode(\"utf-8\"):\r\n                session['name'] = user[1]\r\n                session['email'] = email\r\n                return redirect(url_for(\"home\"))\r\n            else:\r\n                return render_template(\"error.html\")\r\n        else:\r\n            return render_template(\"error.html\")\r\n        return redirect(url_for(\"home\"))\r\n\r\n\r\n@app.route('/logout')\r\ndef logout():\r\n    session.clear()\r\n    return redirect(url_for(\"home\"))\r\n\r\n\r\n@app.route('/profile', methods=[\"GET\", \"POST\"])\r\ndef profile():\r\n    cnx, c = connection()\r\n\r\n    if request.method == \"GET\":\r\n        query = \"select username, email, gender, age, city from user where email = \\\"\" + session['email'] + \"\\\";\"\r\n        c.execute(query)\r\n        data = c.fetchall()\r\n        c.close()\r\n        cnx.close()\r\n        return render_template(\"profile.html\", data=data)\r\n    else:\r\n        name = request.form['name']\r\n        gender = request.form['gender']\r\n        age = request.form['age']\r\n        city = request.form['city']\r\n\r\n        query = \"Update user set username = %s, gender = %s, age = %s, city = %s where email = %s\", (\r\n            name, gender, age, city, session['email'])\r\n        c.execute(query)\r\n        c.close()\r\n        cnx.commit()\r\n        cnx.close()\r\n\r\n        return render_template(\"profile.html\")\r\n\r\n@app.route('/pets', methods=[\"GET\", \"POST\"])\r\ndef pets():\r\n    cnx, c = connection()\r\n    email = session['email']\r\n    if request.method == \"GET\":\r\n\r\n        c.execute(\"SELECT user_id FROM user WHERE email = \" + email)\r\n        user = 0\r\n        for uid in c:\r\n            user = uid\r\n\r\n        query = \"SELECT pet_id, name\"\r\n        query += \"FROM pet\"\r\n        query += \"WHERE user_id = \" + str(user)\r\n\r\n        c.execute(query)\r\n\r\n        data = c.fetchall()\r\n\r\n        c.close()\r\n        cnx.close()\r\n        return render_template(\"pets.html\", data=data)\r\n\r\n    else:\r\n        name = request.form[\"pet_name\"]\r\n        species = request.form[\"species\"]\r\n        age = request.form[\"pet_age\"]\r\n        weight = request.form[\"weight\"]\r\n        status = request.form[\"status\"]\r\n\r\n        record = [name, species, age, weight, status]\r\n        c.execute(\"INSERT INTO pet(name, species, age, weight, status) VALUES(%s, %s, %s, %s, %s)\", record)\r\n\r\n        c.close()\r\n        cnx.commit()\r\n        cnx.close()\r\n        return redirect(url_for(\"pets\"))\r\n\r\n\r\n@app.route('/pets_detail')\r\ndef pets_detail():\r\n    cnx, c = connection()\r\n\r\n    pet_id = request.GET.get('pet_id')\r\n\r\n    query = \"SELECT pet_id, name, species, age, weight, status\"\r\n    query += \"FROM pet WHERE pet_id = \" + str(pet_id) + \";\"\r\n    c.execute(query)\r\n\r\n    data = c.fetchall()\r\n\r\n    c.close()\r\n    cnx.close()\r\n    return render_template(\"pets_detail.html\", data=data)\r\n\r\n\r\n@app.route('/pets_daily_report')\r\ndef pets_daily_report():\r\n    cnx, c = connection()\r\n    pet_id = request.GET.get('pet_id')\r\n\r\n    q = \"SELECT name FROM pet WHERE pet_id = \" + pet_id;\r\n    c.execute(q)\r\n    name = c.fetchall()\r\n\r\n    query = \"SELECT date, SUM(amount * calories)\"\r\n    query += \"FROM dietrecord\"\r\n    query += \"JOIN mealrel ON dietrecord.meal_id = mealrel.meal_id\"\r\n    query += \"JOIN food ON mealrel.food_id = food.food_id\"\r\n    query += \"WHERE dietrecord.pet_id = 1\"\r\n    query += \"GROUP BY date\"\r\n\r\n    c.execute(query)\r\n\r\n    cur = datetime.date.today()\r\n    year_now, week_now, day_now = cur.isocalendar()\r\n\r\n    data = {name}\r\n    for (date, cal) in c:\r\n        d = datetime.datetime.strptime(date, '%Y-%m-%d')\r\n        week = d.isocalendar()[1]\r\n        if week == week_now:\r\n            data += (date, cal)\r\n\r\n    c.close()\r\n    cnx.close()\r\n    return render_template(\"pets_daily_report.html\", data=data)\r\n\r\n@app.route('/diet',methods=[\"GET\",\"POST\"])\r\ndef diet():\r\n    cnx, c = connection()\r\n    query = \"select meal.meal_id, date, type from dietRecord JOIN meal on dietRecord.meal_id = meal.meal_id;\"\r\n    c.execute(query)\r\n    data = c.fetchall()\r\n\r\n    info =[]\r\n    for item in data:\r\n        meal_id = item[0]\r\n        c.execute(\"select food_id, amount from mealrel where meal_id=%s;\",(meal_id,))\r\n        food = c.fetchall()\r\n        total =0\r\n        for i in food:\r\n            c.execute(\"select calories from food where food_id=%s;\", (i[0],))\r\n            temp = c.fetchone()[0]\r\n            total = total + temp * i[1]/100\r\n\r\n        new =item + (total,)\r\n        info.append(new)\r\n\r\n    #print(info)\r\n\r\n    c.close()\r\n    cnx.close()\r\n\r\n    return render_template(\"diet.html\", info=info)\r\n\r\n@app.route('/addmeal', methods=[\"GET\",\"POST\"])\r\ndef addmeal():\r\n    cnx, c = connection()\r\n    if request.method == \"GET\":\r\n        c.execute(\"SELECT name from food;\")\r\n        foodlist = [foodlist[0] for foodlist in c.fetchall()]\r\n        foodlist.append(\"null\")\r\n        return render_template(\"addmeal.html\", foodlist = foodlist)\r\n    else:\r\n        mealtype = request.form[\"type\"]\r\n        month = request.form[\"month\"]\r\n        date = request.form[\"date\"]\r\n        year = request.form[\"year\"]\r\n        food1 = request.form[\"food1\"]\r\n        amount1 = request.form[\"amount1\"]\r\n        food2 = request.form[\"food2\"]\r\n        amount2 = request.form[\"amount1\"]\r\n        food3 = request.form[\"food3\"]\r\n        amount3 = request.form[\"amount1\"]\r\n\r\n        food1_id = 0\r\n        food2_id = 0\r\n        food3_id = 0\r\n        if food1 != \"null\":\r\n            c.execute(\"SELECT food_id FROM food where food.name=%s;\", (food1,))\r\n            food1_id = c.fetchone()[0]\r\n\r\n        if food2 != \"null\":\r\n            c.execute(\"SELECT food_id FROM food where food.name=%s;\", (food2,))\r\n            food2_id = c.fetchone()[0]\r\n\r\n        if food3 != \"null\":\r\n            c.execute(\"SELECT food_id FROM food where food.name=%s;\", (food3,))\r\n            food3_id = c.fetchone()[0]\r\n\r\n        query = \"INSERT INTO meal(type) VALUES (%s)\"\r\n        c.execute(query, (mealtype,))\r\n\r\n        c.execute(\"SELECT MAX(meal_id) FROM meal;\")\r\n        meal_id = c.fetchone()[0]\r\n        if food1_id != 0:\r\n            c.execute(\"INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)\",\r\n                      (meal_id, food1_id, amount1))\r\n\r\n        if food2_id != 0:\r\n            c.execute(\"INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)\",\r\n                      (meal_id, food2_id, amount2))\r\n\r\n        if food3_id != 0:\r\n            c.execute(\"INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)\",\r\n                      (meal_id, food3_id, amount3))\r\n\r\n        petid = 1\r\n        if len(month) == 1: month=\"0\"+month\r\n        if len(date) == 1: date = \"0\"+date\r\n        datetime = month+\"/\"+date+\"/\"+year\r\n\r\n        query2 = \"INSERT INTO dietRecord(pet_id, meal_id, date) VALUES (%s,%s,%s);\"\r\n        c.execute(query2, (petid, meal_id, datetime))\r\n\r\n        c.close()\r\n        cnx.commit()\r\n        cnx.close()\r\n        return redirect(url_for(\"diet\"))\r\n\r\n@app.route('/viewmeal', methods=[\"GET\",\"POST\"])\r\ndef viewmeal():\r\n    cnx, c = connection()\r\n    meal_id = request.form.get(\"meal_id\")\r\n\r\n    data=[]\r\n    c.execute(\"select date from dietRecord where meal_id=%s\",(meal_id,))\r\n    date = c.fetchone()[0]\r\n    data.append(date)\r\n\r\n    c.execute(\"select type from meal where meal_id=%s\",(meal_id,))\r\n    type = c.fetchone()[0]\r\n    data.append(type)\r\n\r\n    c.execute(\"select name, amount, calories, moisture, protein, lipid \"\r\n              \"from mealrel join food on mealrel.food_id = food.food_id \"\r\n              \"where meal_id=%s;\", (meal_id,))\r\n    food = c.fetchall()\r\n\r\n    info = []\r\n    total = 0\r\n    for item in food:\r\n        temp = item[1]* item[2] / 100\r\n        new = item + (temp,)\r\n        info.append(new)\r\n        total += temp\r\n\r\n    c.close()\r\n    cnx.commit()\r\n    cnx.close()\r\n    return render_template(\"viewmeal.html\", data=data, info=info, total=total)\r\n\r\n\r\nif __name__ == '__main__':\r\n    app.secret_key = \"012#!ApaAjaBoleh)(*^%\"\r\n    app.run(debug=True)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- meowNu.py	(revision 7a2441ea0a30c7d186beeb70b241675c9e59cf5c)
++++ meowNu.py	(date 1620236330810)
+@@ -97,17 +97,16 @@
+ 
+         return render_template("profile.html")
+ 
++
+ @app.route('/pets', methods=["GET", "POST"])
+ def pets():
+     cnx, c = connection()
+-    email = session['email']
++    #email = session['email']
++    email = "123@gmail.com"
++    c.execute("SELECT user_id FROM user WHERE email = " + email + ";")
++    user = c.fetchone()
+     if request.method == "GET":
+ 
+-        c.execute("SELECT user_id FROM user WHERE email = " + email)
+-        user = 0
+-        for uid in c:
+-            user = uid
+-
+         query = "SELECT pet_id, name"
+         query += "FROM pet"
+         query += "WHERE user_id = " + str(user)
+@@ -116,6 +115,8 @@
+ 
+         data = c.fetchall()
+ 
++        print(query + "\n" + data + "\n\n")
++
+         c.close()
+         cnx.close()
+         return render_template("pets.html", data=data)
+@@ -127,8 +128,10 @@
+         weight = request.form["weight"]
+         status = request.form["status"]
+ 
+-        record = [name, species, age, weight, status]
+-        c.execute("INSERT INTO pet(name, species, age, weight, status) VALUES(%s, %s, %s, %s, %s)", record)
++        record = [user, name, species, age, weight, status]
++        c.execute("INSERT INTO pet(user_id, name, species, age, weight, status) VALUES(%s, %s, %s, %s, %s, %s)", record)
++
++        print(record)
+ 
+         c.close()
+         cnx.commit()
+@@ -146,7 +149,9 @@
+     query += "FROM pet WHERE pet_id = " + str(pet_id) + ";"
+     c.execute(query)
+ 
+-    data = c.fetchall()
++    data = c.fetchone()
++
++    print(query + "\n" + data + "\n\n")
+ 
+     c.close()
+     cnx.close()
+@@ -160,14 +165,16 @@
+ 
+     q = "SELECT name FROM pet WHERE pet_id = " + pet_id;
+     c.execute(q)
+-    name = c.fetchall()
++    name = c.fetchone()
+ 
+-    query = "SELECT date, SUM(amount * calories)"
++    print(q + "\n" + name + "\n\n")
++
++    query = "SELECT date, SUM(amount * calories * 0.01)"
+     query += "FROM dietrecord"
+     query += "JOIN mealrel ON dietrecord.meal_id = mealrel.meal_id"
+     query += "JOIN food ON mealrel.food_id = food.food_id"
+     query += "WHERE dietrecord.pet_id = 1"
+-    query += "GROUP BY date"
++    query += "GROUP BY date;"
+ 
+     c.execute(query)
+ 
+@@ -181,46 +188,50 @@
+         if week == week_now:
+             data += (date, cal)
+ 
++    print(query + "\n" + data + "\n\n")
++
+     c.close()
+     cnx.close()
+     return render_template("pets_daily_report.html", data=data)
+ 
+-@app.route('/diet',methods=["GET","POST"])
++
++@app.route('/diet', methods=["GET", "POST"])
+ def diet():
+     cnx, c = connection()
+     query = "select meal.meal_id, date, type from dietRecord JOIN meal on dietRecord.meal_id = meal.meal_id;"
+     c.execute(query)
+     data = c.fetchall()
+ 
+-    info =[]
++    info = []
+     for item in data:
+         meal_id = item[0]
+-        c.execute("select food_id, amount from mealrel where meal_id=%s;",(meal_id,))
++        c.execute("select food_id, amount from mealrel where meal_id=%s;", (meal_id,))
+         food = c.fetchall()
+-        total =0
++        total = 0
+         for i in food:
+             c.execute("select calories from food where food_id=%s;", (i[0],))
+             temp = c.fetchone()[0]
+-            total = total + temp * i[1]/100
++            total = total + temp * i[1] / 100
+ 
+-        new =item + (total,)
++        new = item + (total,)
+         info.append(new)
+ 
+-    #print(info)
++    # print(info)
+ 
+     c.close()
+     cnx.close()
+ 
+     return render_template("diet.html", info=info)
+ 
+-@app.route('/addmeal', methods=["GET","POST"])
++
++@app.route('/addmeal', methods=["GET", "POST"])
+ def addmeal():
+     cnx, c = connection()
+     if request.method == "GET":
+         c.execute("SELECT name from food;")
+         foodlist = [foodlist[0] for foodlist in c.fetchall()]
+         foodlist.append("null")
+-        return render_template("addmeal.html", foodlist = foodlist)
++        return render_template("addmeal.html", foodlist=foodlist)
+     else:
+         mealtype = request.form["type"]
+         month = request.form["month"]
+@@ -266,9 +277,9 @@
+                       (meal_id, food3_id, amount3))
+ 
+         petid = 1
+-        if len(month) == 1: month="0"+month
+-        if len(date) == 1: date = "0"+date
+-        datetime = month+"/"+date+"/"+year
++        if len(month) == 1: month = "0" + month
++        if len(date) == 1: date = "0" + date
++        datetime = month + "/" + date + "/" + year
+ 
+         query2 = "INSERT INTO dietRecord(pet_id, meal_id, date) VALUES (%s,%s,%s);"
+         c.execute(query2, (petid, meal_id, datetime))
+@@ -278,17 +289,18 @@
+         cnx.close()
+         return redirect(url_for("diet"))
+ 
+-@app.route('/viewmeal', methods=["GET","POST"])
++
++@app.route('/viewmeal', methods=["GET", "POST"])
+ def viewmeal():
+     cnx, c = connection()
+     meal_id = request.form.get("meal_id")
+ 
+-    data=[]
+-    c.execute("select date from dietRecord where meal_id=%s",(meal_id,))
++    data = []
++    c.execute("select date from dietRecord where meal_id=%s", (meal_id,))
+     date = c.fetchone()[0]
+     data.append(date)
+ 
+-    c.execute("select type from meal where meal_id=%s",(meal_id,))
++    c.execute("select type from meal where meal_id=%s", (meal_id,))
+     type = c.fetchone()[0]
+     data.append(type)
+ 
+@@ -300,7 +312,7 @@
+     info = []
+     total = 0
+     for item in food:
+-        temp = item[1]* item[2] / 100
++        temp = item[1] * item[2] / 100
+         new = item + (temp,)
+         info.append(new)
+         total += temp
