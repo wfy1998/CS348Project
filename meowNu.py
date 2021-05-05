@@ -245,11 +245,18 @@ def diet():
         new = item + (total,)
         info.append(new)
 
-    # print(info)
+    args = []
+    args.append(pet_id)
+    c.callproc("statis", args)
+    statis = []
+    for result in c.stored_results():
+        statis = result.fetchall()
+
+    print(statis)
 
     c.close()
     cnx.close()
-    return render_template("diet.html", info=info, pet_id=pet_id, pet_name=pet_name)
+    return render_template("diet.html", info=info, pet_id=pet_id, pet_name=pet_name, statis=statis)
 
 
 @app.route('/addmeal', methods=["GET", "POST"])
