@@ -7,25 +7,39 @@
 <body>
     <h1 style="text-align:center">Name: Cookies</h1>
     <br/><br/><br/>
-    {%if data[0] == NULL%}
+    {%if info[0] == NULL%}
         <br/><br/>
-        <h4 style="text-align:center">
+        <h3 style="text-align:center">
             No meal has been record yet!
-        </h4>
+        </h3>
     {%else%}
         <table align="center" border="1" cellpadding="5" cellspacing="5">
             <tr style="text-align:center">
                 <td>Date</td>
                 <td>Meal Type</td>
+                <td>Calories(kcal)</td>
+                <td>Health Status</td>
+                <td>View Meal</td>
             </tr>
-        {% for row in data %}
+
+        {% for row in info %}
             <tr style="text-align:center">
-                <td>{{ row[0] }}</td>
                 <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>GOOD.</td>
+                <td>
+                    <form action='/viewmeal' method='POST'>
+                        <input type='hidden' name='meal_id' value="{{ row[0] }}"/>
+                        <input class='button' type='submit' value='view'/>
+                    </form>
+                </td>
             </tr>
         {% endfor %}
     {%endif%}
 </table>
-    <center><a class="button" href="{{ url_for('addmeal') }}">Add meal</a></center>
+    <center>
+        <a class="button" href="{{ url_for('addmeal') }}">Add meal</a>
+    </center>
 </body>
 </html>

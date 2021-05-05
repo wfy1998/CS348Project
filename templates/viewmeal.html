@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Meal Report</title>
+</head>
+<body>
+    <h1 style="text-align:center">Name: Cookies</h1>
+    <br/><br/><br/>
+    <p style="text-align:center;color:black;font-size:19px;">
+        Date:&nbsp;{{ data[0] }}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Type:&nbsp;{{ data[1] }}
+    </p></br></br>
+    <h3 style="text-align:center">Food Details</h3>
+        <table align="center" border="1" cellpadding="5" cellspacing="5">
+            <tr style="text-align:center">
+                <td>Name</td>
+                <td>Weight</td>
+                <td>Calories(kcal)</td>
+                <td>Moisture</td>
+                <td>Protein</td>
+                <td>Lipid</td>
+                <td>Total Calories(kcal)</td>
+            </tr>
+
+        {% for row in info %}
+            <tr style="text-align:center">
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[3] }}</td>
+                <td>{{ row[4] }}</td>
+                <td>{{ row[5] }}</td>
+                <td>{{ row[6] }}</td>
+            </tr>
+        {% endfor %}
+</table>
+    <p style="text-align:center;color:black;font-size:23px;">
+        The Total Calories for this meal is
+        <span style="color:olivedrab">{{ total }}</span>
+        kcal.
+    </p>
+</body>
+</html>
