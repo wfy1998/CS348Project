@@ -260,7 +260,6 @@ def diet():
     for result in c.stored_results():
         statis = result.fetchall()
 
-    print(statis)
 
     c.close()
     cnx.close()
