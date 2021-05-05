@@ -160,7 +160,7 @@ def pets():
 
         c.execute("""
                     INSERT INTO pet(user_id, name, species, age, gender, weight, status) 
-                    VALUES(%s, %s, %s, %s, %s, %s, %s)""" % (user[0], name, species, age, gender, weight, status, ))
+                    VALUES(%s, '%s', '%s', %s, '%s', %s, '%s')""" % (user[0], name, species, age, gender, weight, status, ))
 
         c.close()
         cnx.commit()
