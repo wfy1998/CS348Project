@@ -18,8 +18,10 @@ def register():
     else:
         name = request.form['name']
         email = request.form['email']
-        if email in session['email']:
-            return render_template("error.html")
+        print(email)
+        print("\n\n\n")
+        # if email in session['email']:
+        #     return render_template("error.html")
         psw = request.form['psw'].encode("utf-8")
         hash_password = bcrypt.hashpw(psw, bcrypt.gensalt())
         print("("+str(name)+","+str(email)+","+str(psw)+");")
