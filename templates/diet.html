@@ -5,8 +5,10 @@
     <title>Diet Record</title>
 </head>
 <body>
-    <h1 style="text-align:center">Name: Cookies</h1>
-    <br/><br/><br/>
+    <h1 style="text-align:center">Diet Record</h1>
+    <br/>
+    <p style="text-align:center;font-size:20px;">Pet Name:&nbsp;<span style="color:darksalmon">{{ pet_name }}</span></p>
+    <br/><br/>
     {%if info[0] == NULL%}
         <br/><br/>
         <h3 style="text-align:center">
@@ -38,7 +40,10 @@
         {% endfor %}
     {%endif%}
 </table>
+    </br>
     <center>
+        <a class="button" href="{{ url_for('pets') }}"> Back</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <a class="button" href="{{ url_for('addmeal', pet_id = pet_id) }}">Add meal</a>
     </center>
 </body>

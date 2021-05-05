@@ -218,8 +218,13 @@ def pets_daily_report():
 @app.route('/diet', methods=["GET", "POST"])
 def diet():
     cnx, c = connection()
-    query = "select meal.meal_id, date, type from dietRecord JOIN meal on dietRecord.meal_id = meal.meal_id;"
-    c.execute(query)
+    pet_id = request.args.get('pet_id')
+    c.execute("select name from pet where pet_id=%s", (pet_id,))
+    pet_name = c.fetchone()[0]
+
+    query = "select meal.meal_id, date, type " \
+            "from dietRecord JOIN meal on dietRecord.meal_id = meal.meal_id where pet_id=%s;"
+    c.execute(query, (pet_id,))
     data = c.fetchall()
 
     info = []
@@ -237,8 +242,7 @@ def diet():
 
     c.close()
     cnx.close()
-
-    return render_template("diet.html", info=info, pet_id=pet_id)
+    return render_template("diet.html", info=info, pet_id=pet_id, pet_name=pet_name)
 
 
 @app.route('/addmeal', methods=["GET", "POST"])
@@ -250,7 +254,7 @@ def addmeal():
         c.execute("SELECT name from food;")
         foodlist = [foodlist[0] for foodlist in c.fetchall()]
         foodlist.append("null")
-        return render_template("addmeal.html", foodlist=foodlist)
+        return render_template("addmeal.html", foodlist=foodlist, pet_id=pet_id)
     else:
         mealtype = request.form["type"]
         month = request.form["month"]
@@ -305,12 +309,13 @@ def addmeal():
         c.close()
         cnx.commit()
         cnx.close()
-        return redirect(url_for("diet"))
+        return redirect(url_for("diet", pet_id= pet_id))
 
 
 @app.route('/viewmeal', methods=["GET", "POST"])
 def viewmeal():
     cnx, c = connection()
+    pet_id = request.args.get('pet_id')
     meal_id = request.form.get("meal_id")
 
     data = []
@@ -338,7 +343,7 @@ def viewmeal():
     c.close()
     cnx.commit()
     cnx.close()
-    return render_template("viewmeal.html", data=data, info=info, total=total)
+    return render_template("viewmeal.html", data=data, info=info, total=total, pet_id=pet_id)
 
 
 if __name__ == '__main__':
