@@ -260,7 +260,6 @@ def diet():
     for result in c.stored_results():
         statis = result.fetchall()
 
-
     c.close()
     cnx.close()
     return render_template("diet.html", info=info, pet_id=pet_id, pet_name=pet_name, statis=statis)
