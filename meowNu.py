@@ -53,7 +53,7 @@ def login():
         print("\n\n\n")
         # c.close()
         # cnx.close()
-        if user != None:
+        if user is not None:
             if bcrypt.hashpw(password, user[2].encode("utf-8")) == user[2].encode("utf-8"):
                 session['name'] = user[1]
                 session['email'] = email
@@ -71,31 +71,55 @@ def logout():
     return redirect(url_for("home"))
 
 
-@app.route('/profile', methods=["GET", "POST"])
+@app.route('/profile')
 def profile():
+    cnx, c = connection()
+    query = "select username, email, gender, age, city from user where email = \"" + session['email'] + "\";"
+    c.execute(query)
+    data = c.fetchall()
+    c.close()
+    cnx.commit()
+    cnx.close()
+    return render_template("profile.html", data=data)
+    # if request.method == "GET":
+    #     return render_template("profile.html", data=data)
+    # else:
+    #     name = request.form['name']
+    #     gender = request.form['gender']
+    #     age = request.form['age']
+    #     city = request.form['city']
+
+    #     query = "Update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
+    #         name, gender, age, city, session['email'])
+    #     c.execute(query)
+    #     c.close()
+    #     cnx.commit()
+    #     cnx.close()
+
+    #     return render_template("profile.html")
+
+@app.route('/setProfile', methods=["GET", "POST"])
+def setProfile():
     cnx, c = connection()
 
     if request.method == "GET":
-        query = "select username, email, gender, age, city from user where email = \"" + session['email'] + "\";"
-        c.execute(query)
-        data = c.fetchall()
-        c.close()
-        cnx.close()
-        return render_template("profile.html", data=data)
+        return render_template("setProfile.html")
     else:
         name = request.form['name']
         gender = request.form['gender']
         age = request.form['age']
         city = request.form['city']
 
-        query = "Update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
+        query = "update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
             name, gender, age, city, session['email'])
+        print(query)
+        print("\n\n\n")
         c.execute(query)
         c.close()
         cnx.commit()
         cnx.close()
 
-        return render_template("profile.html")
+        return redirect(url_for("profile"))
 
 @app.route('/pets', methods=["GET", "POST"])
 def pets():
