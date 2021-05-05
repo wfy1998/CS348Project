@@ -213,8 +213,11 @@ def pets_daily_report():
 def diet():
     cnx, c = connection()
     query = "select meal.meal_id, date, type from dietRecord JOIN meal on dietRecord.meal_id = meal.meal_id;"
-    c.execute(query)
-    data = c.fetchall()
+    try:
+        c.execute(query)
+        data = c.fetchall()
+    except:
+        print("Something went wrong.")
 
     info =[]
     for item in data:
@@ -222,10 +225,13 @@ def diet():
         query = "select SUM(amount*calories/100) from (select meal_id, calories, amount " \
                 "from mealrel join food on mealrel.food_id=food.food_id) as a " \
                 "where meal_id = %s;"
-        c.execute(query,(meal_id,))
-        total = c.fetchone()[0]
-        new =item + (total,)
-        info.append(new)
+        try:
+            c.execute(query,(meal_id,))
+            total = c.fetchone()[0]
+            new =item + (total,)
+            info.append(new)
+        except:
+            print("Something went wrong.")
 
 
     c.close()
@@ -237,10 +243,13 @@ def diet():
 def addmeal():
     cnx, c = connection()
     if request.method == "GET":
-        c.execute("SELECT name from food;")
-        foodlist = [foodlist[0] for foodlist in c.fetchall()]
-        foodlist.append("null")
-        return render_template("addmeal.html", foodlist = foodlist)
+        try:
+            c.execute("SELECT name from food;")
+            foodlist = [foodlist[0] for foodlist in c.fetchall()]
+            foodlist.append("null")
+            return render_template("addmeal.html", foodlist = foodlist)
+        except:
+            print("Something went wrong.")
     else:
         mealtype = request.form["type"]
         month = request.form["month"]
@@ -285,13 +294,13 @@ def addmeal():
             c.execute("INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)",
                       (meal_id, food3_id, amount3))
 
-        petid = 1
+        pet_id = 2
         if len(month) == 1: month="0"+month
         if len(date) == 1: date = "0"+date
         datetime = month+"/"+date+"/"+year
 
         query2 = "INSERT INTO dietRecord(pet_id, meal_id, date) VALUES (%s,%s,%s);"
-        c.execute(query2, (petid, meal_id, datetime))
+        c.execute(query2, (pet_id, meal_id, datetime))
 
         c.close()
         cnx.commit()
@@ -311,11 +320,12 @@ def viewmeal():
     c.execute("select type from meal where meal_id=%s",(meal_id,))
     type = c.fetchone()[0]
     data.append(type)
-
-    c.execute("select name, amount, calories, moisture, protein, lipid "
-              "from mealrel join food on mealrel.food_id = food.food_id "
-              "where meal_id=%s;", (meal_id,))
-    food = c.fetchall()
+    args =[]
+    args.append(meal_id)
+    c.callproc("getView", args)
+    food=[]
+    for result in c.stored_results():
+        food = result.fetchall()
 
     info = []
     total = 0
