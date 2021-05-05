@@ -334,10 +334,12 @@ def viewmeal():
     type = c.fetchone()[0]
     data.append(type)
 
-    c.execute("select name, amount, calories, moisture, protein, lipid "
-              "from mealrel join food on mealrel.food_id = food.food_id "
-              "where meal_id=%s;", (meal_id,))
-    food = c.fetchall()
+    args = []
+    args.append(meal_id)
+    c.callproc("getView", args)
+    food = []
+    for result in c.stored_results():
+        food = result.fetchall()
 
     info = []
     total = 0
