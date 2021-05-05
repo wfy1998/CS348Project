@@ -43,24 +43,20 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     else:
-
         email = request.form['email']
         password = request.form['password'].encode("utf-8")
 
         query = "select * from user where email = \"" + email + "\";"
-        print(query)
-        print("\n\n\n")
         c.execute(query)
 
         user = c.fetchone()
         print(user)
-        c.close()
-        cnx.close()
-        print(user['password'].encode("utf-8"))
-        if user == None:
-            print(user['password'].encode("utf-8"))
-            if bcrypt.hashpw(password, user['password'].encode("utf-8")) == user['password'].encode("utf-8"):
-                session['name'] = name
+        print("\n\n\n")
+        # c.close()
+        # cnx.close()
+        if user != None:
+            if bcrypt.hashpw(password, user[2].encode("utf-8")) == user[2].encode("utf-8"):
+                session['name'] = user[1]
                 session['email'] = email
                 return redirect(url_for("home"))
             else:
