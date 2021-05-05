@@ -129,7 +129,6 @@ def pets():
         query += "WHERE user_id = " + str(user)
 
         c.execute(query)
-
         data = c.fetchall()
 
         c.close()
