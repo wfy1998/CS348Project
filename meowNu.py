@@ -3,6 +3,8 @@ import mysql.connector
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 import bcrypt
 import datetime
+import pandas as pd
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 
@@ -89,7 +91,7 @@ def setProfile():
 
     if request.method == "GET":
         return render_template("setProfile.html")
-    else: 
+    else:
         name = request.form['name']
         gender = request.form['gender']
         age = request.form['age']
@@ -104,15 +106,16 @@ def setProfile():
 
         return redirect(url_for("profile"))
 
+
 @app.route('/user', methods=["GET", "POST"])
 def user():
     cnx, c = connection()
     if request.method == "GET":
         return render_template("user.html")
-    else: 
+    else:
         city = request.form['city']
         query = "select username, email, gender, age, city from user" \
-            " where email in (select email from user where city = \""+ city +"\"); " 
+                " where email in (select email from user where city = \"" + city + "\"); "
         c.execute(query)
         data = c.fetchall()
         c.close()
@@ -133,7 +136,6 @@ def pets():
     print("User: " + str(user[0]))
 
     if request.method == "GET":
-
 
         c.execute("SELECT pet_id, name FROM pet WHERE user_id = %s" % (user[0],))
 
@@ -156,11 +158,12 @@ def pets():
         weight = request.form["weight"]
         status = request.form["status"]
 
-        print((user, name, species, age, gender, weight, status, ))
+        print((user, name, species, age, gender, weight, status,))
 
         c.execute("""
                     INSERT INTO pet(user_id, name, species, age, gender, weight, status) 
-                    VALUES(%s, '%s', '%s', %s, '%s', %s, '%s')""" % (user[0], name, species, age, gender, weight, status, ))
+                    VALUES(%s, '%s', '%s', %s, '%s', %s, '%s')""" % (
+        user[0], name, species, age, gender, weight, status,))
 
         c.close()
         cnx.commit()
@@ -210,18 +213,27 @@ def pets_daily_report():
     cur = datetime.date.today()
     year_now, week_now, day_now = cur.isocalendar()
 
-    data = []
-    for (date, cal) in c:
-        d = datetime.datetime.strptime(date, '%Y-%m-%d')
-        week = d.isocalendar()[1]
-        if week == week_now:
-            data += (date, cal)
+    print("week now:" + str(week_now))
 
-    print(str(data) + "\n\n")
+    dates = []
+    cals = []
+    for (date, cal) in c:
+        print("date: " + str(date) + " cal: " + str(cal))
+        d = datetime.datetime.strptime(date, '%m/%d/%Y')
+        week = d.isocalendar()[1]
+        print("week: " + str(week))
+        if week == week_now:
+            dates.append(date)
+            cals.append(cal)
+
+    print("dates: " + str(dates))
+    print("cals: " + str(cals) + "\n\n")
+
+
 
     c.close()
     cnx.close()
-    return render_template("pets_daily_report.html", name=name, data=data)
+    return render_template("pets_daily_report.html", name=name, dates=dates, cals=cals)
 
 
 @app.route('/diet', methods=["GET", "POST"])
@@ -318,7 +330,7 @@ def addmeal():
         c.close()
         cnx.commit()
         cnx.close()
-        return redirect(url_for("diet", pet_id= pet_id))
+        return redirect(url_for("diet", pet_id=pet_id))
 
 
 @app.route('/viewmeal', methods=["GET", "POST"])
