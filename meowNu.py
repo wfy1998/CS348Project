@@ -104,15 +104,13 @@ def setProfile():
         return redirect(url_for("profile"))
 
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/pets', methods=["GET", "POST"])
 def pets():
     cnx, c = connection()
     email = session['email']
     # email = "123@gmail.com"
     c.execute("SELECT user_id FROM user WHERE email = '%s'" % (email,))
     user = c.fetchone()
-
-    print("User: " + str(user[0]))
 
     if request.method == "GET":
 
@@ -134,8 +132,8 @@ def pets():
         status = request.form["status"]
 
         record = [user, name, species, age, weight, status]
-        c.execute("INSERT INTO pet(user_id, name, species, age, weight, status) VALUES(%s, '%s', '%s', %s, %s, '%s')",
-                  record)
+        c.execute("INSERT INTO pet(user_id, name, species, age, weight, status) VALUES(%s, %s, %s, %s, %s, %s)",
+                  (user[0], name, species, age, weight, status))
 
         print(record)
 
@@ -209,6 +207,7 @@ def diet():
     except:
         print("Something went wrong.")
 
+    pet_id = request.args.get('pet_id')
     info = []
     for item in data:
         meal_id = item[0]
@@ -228,12 +227,14 @@ def diet():
     c.close()
     cnx.close()
 
-    return render_template("diet.html", info=info)
+    return render_template("diet.html", info=info, pet_id=pet_id)
 
 
 @app.route('/addmeal', methods=["GET", "POST"])
 def addmeal():
     cnx, c = connection()
+    pet_id = request.args.get('pet_id')
+
     if request.method == "GET":
         try:
             c.execute("SELECT name from food;")
@@ -287,7 +288,6 @@ def addmeal():
             c.execute("INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)",
                       (meal_id, food3_id, amount3))
 
-        pet_id = 2
         if len(month) == 1: month="0"+month
         if len(date) == 1: date = "0"+date
         datetime = month+"/"+date+"/"+year
