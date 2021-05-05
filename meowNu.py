@@ -110,11 +110,9 @@ def setProfile():
         age = request.form['age']
         city = request.form['city']
 
-        query = "update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
-            name, gender, age, city, session['email'])
-        print(query)
-        print("\n\n\n")
-        c.execute(query)
+        query = "update user set username = %s, gender = %s, age = %s, city = %s where email = %s"
+        c.execute(query,(name, gender, age, city, session['email']))
+        
         c.close()
         cnx.commit()
         cnx.close()
