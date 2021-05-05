@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `food` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `meal` : meal_id, food_id, type, amount
+-- Table structure for table `mealrel` : meal_id, food_id, type, amount
 -- 
 
 CREATE TABLE IF NOT EXISTS `mealrel` (
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `mealrel` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `advice` : advice_id, species, age, gender, status, required_caloreis, required_meat
+-- Table structure for table `suggestion` : suggestion_id, pet_id, date, suggestion
 -- 
 
 CREATE TABLE IF NOT EXISTS `suggestion` (
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `suggestion` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `advice` : advice_id, species, age, gender, status, required_caloreis, required_meat
+-- Table structure for table `nutrients` : nutrients_id, pet_id, calories
 -- 
 
 CREATE TABLE IF NOT EXISTS `nutrients` (
@@ -165,7 +165,6 @@ INSERT INTO `food` (`name`, `calories`, `moisture`, `protein`, `lipid`, `Ca`, `P
 --
 -- Dumping few instances(user, pet, meal) for convenience.
 -- 
-INSERT INTO user(email, password, username, age, gender, city) VALUES 
-("123@gmail.com", "123456", "Mary", 20, "female", "West Lafayette");
+
 INSERT INTO pet(user_id, name, species, age, gender, weight, status ) VALUES 
 (1, "Cookie", "cat", "2", "female", 3, "None");

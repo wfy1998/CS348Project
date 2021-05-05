@@ -7,10 +7,10 @@ import datetime
 app = Flask(__name__)
 
 
-# @app.route('/')
-# def home():
-#     cnx, c = connection()
-#     return render_template("home.html")
+@app.route('/')
+def home():
+    cnx, c = connection()
+    return render_template("home.html")
 
 
 @app.route('/register', methods=["GET", "POST"])
@@ -81,23 +81,6 @@ def profile():
     cnx.commit()
     cnx.close()
     return render_template("profile.html", data=data)
-    # if request.method == "GET":
-    #     return render_template("profile.html", data=data)
-    # else:
-    #     name = request.form['name']
-    #     gender = request.form['gender']
-    #     age = request.form['age']
-    #     city = request.form['city']
-
-    #     query = "Update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
-    #         name, gender, age, city, session['email'])
-    #     c.execute(query)
-    #     c.close()
-    #     cnx.commit()
-    #     cnx.close()
-
-    #     return render_template("profile.html")
-
 
 @app.route('/setProfile', methods=["GET", "POST"])
 def setProfile():
@@ -111,11 +94,9 @@ def setProfile():
         age = request.form['age']
         city = request.form['city']
 
-        query = "update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
-            name, gender, age, city, session['email'])
-        print(query)
-        print("\n\n\n")
-        c.execute(query)
+        query = "update user set username = %s, gender = %s, age = %s, city = %s where email = %s"
+        c.execute(query,(name, gender, age, city, session['email']))
+
         c.close()
         cnx.commit()
         cnx.close()
@@ -126,8 +107,8 @@ def setProfile():
 @app.route('/', methods=["GET", "POST"])
 def pets():
     cnx, c = connection()
-    # email = session['email']
-    email = "123@gmail.com"
+    email = session['email']
+    # email = "123@gmail.com"
     c.execute("SELECT user_id FROM user WHERE email = '%s'" % (email,))
     user = c.fetchone()
 
@@ -228,18 +209,15 @@ def diet():
     info = []
     for item in data:
         meal_id = item[0]
-        c.execute("select food_id, amount from mealrel where meal_id=%s;", (meal_id,))
-        food = c.fetchall()
-        total = 0
-        for i in food:
-            c.execute("select calories from food where food_id=%s;", (i[0],))
-            temp = c.fetchone()[0]
-            total = total + temp * i[1] / 100
-
-        new = item + (total,)
+        query = "select SUM(amount*calories/100) from (select meal_id, calories, amount " \
+                "from mealrel join food on mealrel.food_id=food.food_id) as a " \
+                "where meal_id = %s;"
+        c.execute(query,(meal_id,))
+        total = c.fetchone()[0]
+        new =item + (total,)
         info.append(new)
 
-    # print(info)
+    #print(info)
 
     c.close()
     cnx.close()
