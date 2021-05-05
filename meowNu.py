@@ -87,7 +87,7 @@ def setProfile():
 
     if request.method == "GET":
         return render_template("setProfile.html")
-    else:
+    else: 
         name = request.form['name']
         gender = request.form['gender']
         age = request.form['age']
@@ -102,16 +102,21 @@ def setProfile():
 
         return redirect(url_for("profile"))
 
-@app.route('/user')
+@app.route('/user', methods=["GET", "POST"])
 def user():
     cnx, c = connection()
-    query = "select username, email, gender, age, city from user where email = \"" + session['email'] + "\";"
-    c.execute(query)
-    data = c.fetchall()
-    c.close()
-    cnx.commit()
-    cnx.close()
-    return render_template("user.html", data=data)
+    if request.method == "GET":
+        return render_template("user.html")
+    else: 
+        city = request.form['city']
+        query = "select username, email, gender, age, city from user" \
+            " where email in (select email from user where city = \""+ city +"\"); " 
+        c.execute(query)
+        data = c.fetchall()
+        c.close()
+        cnx.commit()
+        cnx.close()
+        return render_template("user.html", data=data)
 
 
 @app.route('/pets', methods=["GET", "POST"])
