@@ -124,6 +124,7 @@ def user():
 @app.route('/pets', methods=["GET", "POST"])
 def pets():
     cnx, c = connection()
+    c = cnx.cursor(buffered=True)
     email = session['email']
     # email = "123@gmail.com"
     c.execute("SELECT user_id FROM user WHERE email = '%s'" % (email,))
@@ -137,6 +138,9 @@ def pets():
         c.execute("SELECT pet_id, name FROM pet WHERE user_id = %s" % (user[0],))
 
         data = c.fetchall()
+
+        # if data is None:
+        #     data = {}
 
         print("SELECT pet_id, name FROM pet WHERE user_id = " + str(user[0]) + "\n" + str(data) + "\n\n")
 
@@ -152,8 +156,11 @@ def pets():
         weight = request.form["weight"]
         status = request.form["status"]
 
-        record = [name, species, age, gender, weight, status]
-        c.execute("INSERT INTO pet(name, species, age, gender, weight, status) VALUES(%s, %s, %s, %s, %s, %s)", record)
+        print((user, name, species, age, gender, weight, status, ))
+
+        c.execute("""
+                    INSERT INTO pet(user_id, name, species, age, gender, weight, status) 
+                    VALUES(%s, '%s', '%s', %s, '%s', %s, '%s')""" % (user[0], name, species, age, gender, weight, status, ))
 
         c.close()
         cnx.commit()
@@ -299,9 +306,9 @@ def addmeal():
             c.execute("INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)",
                       (meal_id, food3_id, amount3))
 
-        if len(month) == 1: month="0"+month
-        if len(date) == 1: date = "0"+date
-        datetime = month+"/"+date+"/"+year
+        if len(month) == 1: month = "0" + month
+        if len(date) == 1: date = "0" + date
+        datetime = month + "/" + date + "/" + year
 
         query2 = "INSERT INTO dietRecord(pet_id, meal_id, date) VALUES (%s,%s,%s);"
         c.execute(query2, (pet_id, meal_id, datetime))
