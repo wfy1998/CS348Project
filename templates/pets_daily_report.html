@@ -32,78 +32,103 @@
 <form method="get">
 
     <h2>Pet Name: {{ name[0] }}</h2>
-    <div id="container" style="width: 550px; height: 400px; margin: 0 auto"></div>
-    <script language="JavaScript">
-        $(document).ready(function () {
-            var chart = {
-                type: 'bar'
-            };
-            var title = {
-                text: 'Pet Weekly Report'
-            };
 
-            var xAxis = {
-                categories: dates,
-                title: {
-                    text: null
-                }
-            };
-            var yAxis = {
-                min: 0,
-                title: {
-                    text: 'Calories',
-                    align: 'high'
-                },
-                labels: {
-                    overflow: 'justify'
-                }
-            };
-            var tooltip = {
-                valueSuffix: ' kcal'
-            };
-            var plotOptions = {
-                bar: {
-                    dataLabels: {
-                        enabled: true
+    {% if today_diet %}
+        <table align="center" border="1" cellpadding="5" cellspacing="5">
+            <tr style="text-align:center">
+
+                <td>Meal Type</td>
+                <td>Food Type</td>
+                <td>Food Amount</td>
+                <td>Calories(kcal)</td>
+
+            </tr>
+            {% for row in today_diet %}
+                <tr style="text-align:center">
+                    <td>{{ row[0] }}</td>
+                    <td>{{ row[1] }}</td>
+                    <td>{{ row[2] }}</td>
+                    <td>{{ row[3] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if dates and cals %}
+
+        <div id="container" style="width: 550px; height: 400px; margin: 0 auto"></div>
+        <script language="JavaScript">
+            $(document).ready(function () {
+                var chart = {
+                    type: 'bar'
+                };
+                var title = {
+                    text: 'Pet Weekly Report'
+                };
+
+                var xAxis = {
+                    categories: dates,
+                    title: {
+                        text: null
                     }
+                };
+                var yAxis = {
+                    min: 0,
+                    title: {
+                        text: 'Calories',
+                        align: 'high'
+                    },
+                    labels: {
+                        overflow: 'justify'
+                    }
+                };
+                var tooltip = {
+                    valueSuffix: ' kcal'
+                };
+                var plotOptions = {
+                    bar: {
+                        dataLabels: {
+                            enabled: true
+                        }
+                    }
+                };
+                var legend = {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'top',
+                    x: -40,
+                    y: 100,
+                    floating: true,
+                    borderWidth: 1,
+                    backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                    shadow: true
+                };
+                var credits = {
+                    enabled: false
+                };
+
+                var series = [{
+                    name: name,
+                    data: cals
                 }
-            };
-            var legend = {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'top',
-                x: -40,
-                y: 100,
-                floating: true,
-                borderWidth: 1,
-                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                shadow: true
-            };
-            var credits = {
-                enabled: false
-            };
+                ];
 
-            var series = [{
-                name: name,
-                data: cals
-            }
-            ];
+                var json = {};
+                json.chart = chart;
+                json.title = title;
+                json.tooltip = tooltip;
+                json.xAxis = xAxis;
+                json.yAxis = yAxis;
+                json.series = series;
+                json.plotOptions = plotOptions;
+                json.legend = legend;
+                json.credits = credits;
+                $('#container').highcharts(json);
 
-            var json = {};
-            json.chart = chart;
-            json.title = title;
-            json.tooltip = tooltip;
-            json.xAxis = xAxis;
-            json.yAxis = yAxis;
-            json.series = series;
-            json.plotOptions = plotOptions;
-            json.legend = legend;
-            json.credits = credits;
-            $('#container').highcharts(json);
+            });
+        </script>
 
-        });
-    </script>
-
+    {% endif %}
 </form>
 </body>
 </html>

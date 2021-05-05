@@ -134,7 +134,7 @@ def pets():
     cnx, c = connection()
     c = cnx.cursor(buffered=True)
     email = session['email']
-    
+
     # email = "123@gmail.com"
     c.execute("SELECT user_id FROM user WHERE email = '%s'" % (email,))
     user = c.fetchone()
@@ -169,7 +169,7 @@ def pets():
         c.execute("""
                     INSERT INTO pet(user_id, name, species, age, gender, weight, status) 
                     VALUES(%s, '%s', '%s', %s, '%s', %s, '%s')""" % (
-        user[0], name, species, age, gender, weight, status,))
+            user[0], name, species, age, gender, weight, status,))
 
         c.close()
         cnx.commit()
@@ -207,23 +207,27 @@ def pets_daily_report():
 
     print(str(name[0]) + "\n\n")
 
-    c.execute("""
-                SELECT date, SUM(amount * calories * 0.01)
-                FROM dietrecord
-                JOIN mealrel ON dietrecord.meal_id = mealrel.meal_id
-                JOIN food ON mealrel.food_id = food.food_id
-                WHERE dietrecord.pet_id = %s
-                GROUP BY date
-                """ % (pet_id,))
-
     cur = datetime.date.today()
     year_now, week_now, day_now = cur.isocalendar()
 
+    args = [cur.strftime('%m/%d/%Y'), pet_id]
+    c.callproc("GetTodaysDiet", args)
+
+    today_diet = []
+    for result in c.stored_results():
+        today_diet = result.fetchall()
+
     print("week now:" + str(week_now))
+
+    c.callproc("GetWeeklyDiet", [pet_id])
+
+    weeklydiet = []
+    for result in c.stored_results():
+        weeklydiet = result.fetchall()
 
     dates = []
     cals = []
-    for (date, cal) in c:
+    for (date, cal) in weeklydiet:
         print("date: " + str(date) + " cal: " + str(cal))
         d = datetime.datetime.strptime(date, '%m/%d/%Y')
         week = d.isocalendar()[1]
@@ -235,11 +239,9 @@ def pets_daily_report():
     print("dates: " + str(dates))
     print("cals: " + str(cals) + "\n\n")
 
-
-
     c.close()
     cnx.close()
-    return render_template("pets_daily_report.html", name=name, dates=dates, cals=cals)
+    return render_template("pets_daily_report.html", name=name, dates=dates, cals=cals, today_diet=today_diet)
 
 
 @app.route('/diet', methods=["GET", "POST"])
