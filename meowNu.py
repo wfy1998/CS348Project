@@ -119,17 +119,16 @@ def user():
         return render_template("user.html", data=data)
 
 
+
 @app.route('/pets', methods=["GET", "POST"])
 def pets():
     cnx, c = connection()
     email = session['email']
+    c.execute("SELECT user_id FROM user WHERE email = " + email)
+    user = 0
+    for uid in c:
+        user = uid
     if request.method == "GET":
-
-        c.execute("SELECT user_id FROM user WHERE email = " + email)
-        user = 0
-        for uid in c:
-            user = uid
-
         query = "SELECT pet_id, name"
         query += "FROM pet"
         query += "WHERE user_id = " + str(user)
@@ -141,7 +140,6 @@ def pets():
         c.close()
         cnx.close()
         return render_template("pets.html", data=data)
-
     else:
         name = request.form["pet_name"]
         species = request.form["species"]
@@ -149,8 +147,10 @@ def pets():
         weight = request.form["weight"]
         status = request.form["status"]
 
-        record = [name, species, age, weight, status]
-        c.execute("INSERT INTO pet(name, species, age, weight, status) VALUES(%s, %s, %s, %s, %s)", record)
+
+        c.execute("INSERT INTO pet(user_id, name, species, age, weight, status) VALUES(%s, %s, %s, %s, %s, %s)",
+                  (user, name, species, age, weight, status))
+
 
         c.close()
         cnx.commit()
@@ -214,7 +214,8 @@ def diet():
     c.execute(query)
     data = c.fetchall()
 
-    info =[]
+    pet_id = request.args.get('pet_id')
+    info = []
     for item in data:
         meal_id = item[0]
         query = "select SUM(amount*calories/100) from (select meal_id, calories, amount " \
@@ -229,11 +230,13 @@ def diet():
     c.close()
     cnx.close()
 
-    return render_template("diet.html", info=info)
+    return render_template("diet.html", info=info, pet_id=pet_id)
 
 @app.route('/addmeal', methods=["GET","POST"])
 def addmeal():
     cnx, c = connection()
+    pet_id = request.args.get('pet_id')
+
     if request.method == "GET":
         c.execute("SELECT name from food;")
         foodlist = [foodlist[0] for foodlist in c.fetchall()]
@@ -283,13 +286,12 @@ def addmeal():
             c.execute("INSERT INTO mealrel(meal_id, food_id, amount) VALUES (%s, %s, %s)",
                       (meal_id, food3_id, amount3))
 
-        petid = 1
         if len(month) == 1: month="0"+month
         if len(date) == 1: date = "0"+date
         datetime = month+"/"+date+"/"+year
 
         query2 = "INSERT INTO dietRecord(pet_id, meal_id, date) VALUES (%s,%s,%s);"
-        c.execute(query2, (petid, meal_id, datetime))
+        c.execute(query2, (pet_id, meal_id, datetime))
 
         c.close()
         cnx.commit()
