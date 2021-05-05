@@ -49,8 +49,7 @@ def login():
         c.execute(query)
 
         user = c.fetchone()
-        print(user)
-        print("\n\n\n")
+        
         # c.close()
         # cnx.close()
         if user is not None:
@@ -81,22 +80,6 @@ def profile():
     cnx.commit()
     cnx.close()
     return render_template("profile.html", data=data)
-    # if request.method == "GET":
-    #     return render_template("profile.html", data=data)
-    # else:
-    #     name = request.form['name']
-    #     gender = request.form['gender']
-    #     age = request.form['age']
-    #     city = request.form['city']
-
-    #     query = "Update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
-    #         name, gender, age, city, session['email'])
-    #     c.execute(query)
-    #     c.close()
-    #     cnx.commit()
-    #     cnx.close()
-
-    #     return render_template("profile.html")
 
 @app.route('/setProfile', methods=["GET", "POST"])
 def setProfile():
