@@ -35,7 +35,6 @@ p{
     <div class = "col-md-6 col-md-offset-3">
         {% if session['name'] %}
         <form action = "/user" method = 'POST'>
-            
             <h4>select all users from a specific city:</h4>
             <label>city: </label>
             <input type = 'text' placeholder="choose a city"  class='form-control' name='city'>
@@ -60,30 +59,9 @@ p{
                 {%endif%}
                 {%endfor%}
                 
-                <!-- <td>{{ row[1] }}</td>
-                <td>{{ row[2] }}</td>
-                <td>{{ row[3] }}</td>
-                <td>{{ row[4] }}</td> -->
             </tr>
             {% endfor %}
-            <!-- <div class = "form-group">
-                <label>Name:</label>
-                <input type = 'text' placeholder="Update your username"  class='form-control' name='name'>
-                <label>Age:</label>
-                <input type = 'number' min=10 max = 99 value = '22' class='form-control'  name='age'>
-                <br/>
-                <br/>
-                <input type="radio" name="gender" value="female"> Female
-                <br/>
-                <input type="radio" name="gender" value="male"> Male 
-                <br/>
-                <input type="radio" name="gender" value="female"> Intersex
-                <br/>
-            
-            <br/> -->
-            <!-- <div class = "form-group">
-                <button type = 'submit' class='btn bttn-primary'>submit</button>
-            </div> -->
+          
             <br/>
             
 

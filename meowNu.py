@@ -74,9 +74,14 @@ def logout():
 @app.route('/profile')
 def profile():
     cnx, c = connection()
-    query = "select username, email, gender, age, city from user where email = \"" + session['email'] + "\";"
-    c.execute(query)
-    data = c.fetchall()
+    user_id = request.args.get('user_id')
+    args = []
+    args.append(str(session['email']))
+    c.callproc("getUserInfo1", args)
+    food = []
+    for result in c.stored_results():
+        data = result.fetchall()
+
     c.close()
     cnx.commit()
     cnx.close()
@@ -126,6 +131,7 @@ def pets():
     cnx, c = connection()
     c = cnx.cursor(buffered=True)
     email = session['email']
+    
     # email = "123@gmail.com"
     c.execute("SELECT user_id FROM user WHERE email = '%s'" % (email,))
     user = c.fetchone()
@@ -191,10 +197,12 @@ def pets_daily_report():
     cnx, c = connection()
     pet_id = request.args.get('pet_id')
 
+    print(str(pet_id))
+
     c.execute("SELECT name FROM pet WHERE pet_id = %s" % (pet_id,))
     name = c.fetchone()
 
-    print(name + "\n\n")
+    print(str(name[0]) + "\n\n")
 
     c.execute("""
                 SELECT date, SUM(amount * calories * 0.01)
@@ -208,7 +216,7 @@ def pets_daily_report():
     cur = datetime.date.today()
     year_now, week_now, day_now = cur.isocalendar()
 
-    data = {name}
+    data = []
     for (date, cal) in c:
         d = datetime.datetime.strptime(date, '%Y-%m-%d')
         week = d.isocalendar()[1]
@@ -219,7 +227,7 @@ def pets_daily_report():
 
     c.close()
     cnx.close()
-    return render_template("pets_daily_report.html", data=data)
+    return render_template("pets_daily_report.html", name=name, data=data)
 
 
 @app.route('/diet', methods=["GET", "POST"])
