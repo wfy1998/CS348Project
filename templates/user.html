@@ -7,14 +7,14 @@
 <style>
 button { 
     height: 30px; 
-    width: 100px; 
+    width: 60px; 
     border: none;
     color: white;
     background-color: #4CAF50; 
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 20px;
+    font-size: 15px;
     } 
 h1 {
   border-bottom: 3px solid black;
@@ -34,7 +34,13 @@ p{
 <div class= 'row'  border: 0.5rem outset pink; >
     <div class = "col-md-6 col-md-offset-3">
         {% if session['name'] %}
-        <form action = "/login" method = 'POST'>
+        <form action = "/user" method = 'POST'>
+            
+            <h4>select all users from a specific city:</h4>
+            <label>city: </label>
+            <input type = 'text' placeholder="choose a city"  class='form-control' name='city'>
+            <button type = 'submit' class='btn bttn-primary'>submit</button>
+            
             <table align="center" border="1" cellpadding="5" cellspacing="5">
                 <tr style="text-align:center">
                     <td>username</td>
@@ -79,12 +85,13 @@ p{
                 <button type = 'submit' class='btn bttn-primary'>submit</button>
             </div> -->
             <br/>
-            <center><a class="button" href="{{ url_for('home') }}">home</a></center>
+            
 
         </form>
         {%else%}
         <p>Login first</p>
         {%endif%}
+        <a class="button" href="{{ url_for('home') }}">home</a>
     </div>
 </div>
 </body>
