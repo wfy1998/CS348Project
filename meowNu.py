@@ -81,22 +81,6 @@ def profile():
     cnx.commit()
     cnx.close()
     return render_template("profile.html", data=data)
-    # if request.method == "GET":
-    #     return render_template("profile.html", data=data)
-    # else:
-    #     name = request.form['name']
-    #     gender = request.form['gender']
-    #     age = request.form['age']
-    #     city = request.form['city']
-
-    #     query = "Update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
-    #         name, gender, age, city, session['email'])
-    #     c.execute(query)
-    #     c.close()
-    #     cnx.commit()
-    #     cnx.close()
-
-    #     return render_template("profile.html")
 
 @app.route('/setProfile', methods=["GET", "POST"])
 def setProfile():
@@ -110,35 +94,33 @@ def setProfile():
         age = request.form['age']
         city = request.form['city']
 
-        query = "update user set username = %s, gender = %s, age = %s, city = %s where email = %s", (
-            name, gender, age, city, session['email'])
-        print(query)
-        print("\n\n\n")
-        c.execute(query)
+        query = "update user set username = %s, gender = %s, age = %s, city = %s where email = %s"
+        c.execute(query,(name, gender, age, city, session['email']))
+
         c.close()
         cnx.commit()
         cnx.close()
 
         return redirect(url_for("profile"))
 
-@app.route('/pets', methods=["GET", "POST"])
+
+@app.route('/', methods=["GET", "POST"])
 def pets():
     cnx, c = connection()
     email = session['email']
+    # email = "123@gmail.com"
+    c.execute("SELECT user_id FROM user WHERE email = '%s'" % (email,))
+    user = c.fetchone()
+
+    print("User: " + str(user[0]))
+
     if request.method == "GET":
 
-        c.execute("SELECT user_id FROM user WHERE email = " + email)
-        user = 0
-        for uid in c:
-            user = uid
-
-        query = "SELECT pet_id, name"
-        query += "FROM pet"
-        query += "WHERE user_id = " + str(user)
-
-        c.execute(query)
+        c.execute("SELECT pet_id, name FROM pet WHERE user_id = %s" % (user[0],))
 
         data = c.fetchall()
+
+        print("SELECT pet_id, name FROM pet WHERE user_id = " + str(user[0]) + "\n" + str(data) + "\n\n")
 
         c.close()
         cnx.close()
@@ -151,8 +133,11 @@ def pets():
         weight = request.form["weight"]
         status = request.form["status"]
 
-        record = [name, species, age, weight, status]
-        c.execute("INSERT INTO pet(name, species, age, weight, status) VALUES(%s, %s, %s, %s, %s)", record)
+        record = [user, name, species, age, weight, status]
+        c.execute("INSERT INTO pet(user_id, name, species, age, weight, status) VALUES(%s, '%s', '%s', %s, %s, '%s')",
+                  record)
+
+        print(record)
 
         c.close()
         cnx.commit()
@@ -164,13 +149,14 @@ def pets():
 def pets_detail():
     cnx, c = connection()
 
-    pet_id = request.GET.get('pet_id')
+    pet_id = request.args.get('pet_id')
 
-    query = "SELECT pet_id, name, species, age, weight, status"
-    query += "FROM pet WHERE pet_id = " + str(pet_id) + ";"
-    c.execute(query)
+    c.execute("SELECT pet_id, name, species, age, weight, status FROM pet WHERE pet_id = %s" % (pet_id,))
 
-    data = c.fetchall()
+    data = c.fetchone()
+
+    print("SELECT pet_id, name, species, age, weight, status FROM pet WHERE pet_id = " + str(pet_id) + "\n" + str(
+        data) + "\n\n")
 
     c.close()
     cnx.close()
@@ -180,20 +166,21 @@ def pets_detail():
 @app.route('/pets_daily_report')
 def pets_daily_report():
     cnx, c = connection()
-    pet_id = request.GET.get('pet_id')
+    pet_id = request.args.get('pet_id')
 
-    q = "SELECT name FROM pet WHERE pet_id = " + pet_id;
-    c.execute(q)
-    name = c.fetchall()
+    c.execute("SELECT name FROM pet WHERE pet_id = %s" % (pet_id,))
+    name = c.fetchone()
 
-    query = "SELECT date, SUM(amount * calories)"
-    query += "FROM dietrecord"
-    query += "JOIN mealrel ON dietrecord.meal_id = mealrel.meal_id"
-    query += "JOIN food ON mealrel.food_id = food.food_id"
-    query += "WHERE dietrecord.pet_id = 1"
-    query += "GROUP BY date"
+    print(name + "\n\n")
 
-    c.execute(query)
+    c.execute("""
+                SELECT date, SUM(amount * calories * 0.01)
+                FROM dietrecord
+                JOIN mealrel ON dietrecord.meal_id = mealrel.meal_id
+                JOIN food ON mealrel.food_id = food.food_id
+                WHERE dietrecord.pet_id = %s
+                GROUP BY date
+                """ % (pet_id,))
 
     cur = datetime.date.today()
     year_now, week_now, day_now = cur.isocalendar()
@@ -205,11 +192,14 @@ def pets_daily_report():
         if week == week_now:
             data += (date, cal)
 
+    print(str(data) + "\n\n")
+
     c.close()
     cnx.close()
     return render_template("pets_daily_report.html", data=data)
 
-@app.route('/diet',methods=["GET","POST"])
+
+@app.route('/diet', methods=["GET", "POST"])
 def diet():
     cnx, c = connection()
     query = "select meal.meal_id, date, type from dietRecord JOIN meal on dietRecord.meal_id = meal.meal_id;"
@@ -219,7 +209,7 @@ def diet():
     except:
         print("Something went wrong.")
 
-    info =[]
+    info = []
     for item in data:
         meal_id = item[0]
         query = "select SUM(amount*calories/100) from (select meal_id, calories, amount " \
@@ -233,13 +223,15 @@ def diet():
         except:
             print("Something went wrong.")
 
+    #print(info)
 
     c.close()
     cnx.close()
 
     return render_template("diet.html", info=info)
 
-@app.route('/addmeal', methods=["GET","POST"])
+
+@app.route('/addmeal', methods=["GET", "POST"])
 def addmeal():
     cnx, c = connection()
     if request.method == "GET":
@@ -250,6 +242,7 @@ def addmeal():
             return render_template("addmeal.html", foodlist = foodlist)
         except:
             print("Something went wrong.")
+
     else:
         mealtype = request.form["type"]
         month = request.form["month"]
@@ -307,17 +300,18 @@ def addmeal():
         cnx.close()
         return redirect(url_for("diet"))
 
-@app.route('/viewmeal', methods=["GET","POST"])
+
+@app.route('/viewmeal', methods=["GET", "POST"])
 def viewmeal():
     cnx, c = connection()
     meal_id = request.form.get("meal_id")
 
-    data=[]
-    c.execute("select date from dietRecord where meal_id=%s",(meal_id,))
+    data = []
+    c.execute("select date from dietRecord where meal_id=%s", (meal_id,))
     date = c.fetchone()[0]
     data.append(date)
 
-    c.execute("select type from meal where meal_id=%s",(meal_id,))
+    c.execute("select type from meal where meal_id=%s", (meal_id,))
     type = c.fetchone()[0]
     data.append(type)
     args =[]
@@ -330,7 +324,7 @@ def viewmeal():
     info = []
     total = 0
     for item in food:
-        temp = item[1]* item[2] / 100
+        temp = item[1] * item[2] / 100
         new = item + (temp,)
         info.append(new)
         total += temp
